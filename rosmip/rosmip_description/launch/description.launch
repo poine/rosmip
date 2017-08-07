@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="config" default="rosmip" />
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find rosmip_description)/urdf/$(arg config).urdf.xacro" />
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+</launch>

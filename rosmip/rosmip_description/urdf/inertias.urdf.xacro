@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<robot name="rosmip" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Inertia tensors for common solids -->
+  
+  <xacro:macro name="box_inertia" params="mass x_length y_length z_length">
+    <inertia ixx="${(1/12) * mass * (y_length*y_length + z_length*z_length)}" ixy="0.0" ixz="0.0"
+             iyy="${(1/12) * mass * (x_length*x_length + z_length*z_length)}" iyz="0.0"
+             izz="${(1/12) * mass * (x_length*x_length + y_length*y_length)}" />
+  </xacro:macro>  
+  
+  <xacro:macro name="cylinder_inertia" params="mass radius height">
+    <inertia  ixx="${mass*(3*radius*radius+height*height)/12}" ixy = "0" ixz = "0"
+              iyy="${mass*(3*radius*radius+height*height)/12}" iyz = "0"
+              izz="${mass*radius*radius/2}" /> 
+  </xacro:macro>
+
+  <xacro:macro name="hollow_cylinder_inertia" params="mass radius height">
+    <inertia ixx="${(1/12)*mass*(3*(inner_rad*inner_rad+outer_rad*outer_rad)+height*height)}" ixy="0" ixz="0"
+             iyy="${(1/12)*mass*(3*(inner_rad*inner_rad+outer_rad*outer_rad)+height*height)}" iyz="0"
+             izz="${mass*(inner_rad*inner_rad+outer_rad*outer_rad)/2}" />
+  </xacro:macro>
+  
+  <!-- Inertial solids -->
+
+  <xacro:macro name="inertial_cuboid_with_pose" params="mass x_length y_length z_length *origin">
+    <inertial>
+      <xacro:insert_block name="origin"/>
+      <mass value="${mass}" />
+      <xacro:box_inertia mass="${mass}" x_length="${x_length}" y_length="${y_length}" z_length="${z_length}"/>
+    </inertial>
+  </xacro:macro>
+  
+  <xacro:macro name="inertial_cylinder_with_pose" params="mass radius height *origin">
+    <inertial>
+      <xacro:insert_block name="origin" />
+      <mass value="${mass}" />
+      <xacro:cylinder_inertia mass="${mass}" radius="${radius}" height="${height}" />
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="inertial_hollow_tube_with_pose" params="mass inner_rad outer_rad height">
+    <inertial>
+      <mass value="${mass}"/>
+      <xacro:hollow_cylinder_inertia mass="${mass}" inner_rad="${inner_rad}" outer_rad="${outer_rad}" height="${height}" />
+    </inertial>
+  </xacro:macro>
+
+</robot>

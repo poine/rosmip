@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<library path="lib/librosmip_controller">
+
+  <class name="rosmip_control/RosMipController" type="rosmip_controller::RosMipController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      The RosMipController balances a Mobile Inverted Pendulum (MIP). It expects 2 EffortJointInterface type of hardware interfaces.
+    </description>
+  </class>
+
+</library>

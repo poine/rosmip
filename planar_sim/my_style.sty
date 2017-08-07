@@ -1,0 +1,92 @@
+\usepackage[francais]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{a4wide}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{amsmath, amsthm}
+\usepackage{amsfonts,amssymb}
+\usepackage{float}
+\usepackage{url}
+\usepackage{caption}
+\usepackage{mdwlist}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{calc}
+\usepackage{lastpage}
+
+%
+% Math notations
+%
+\newcommand{\vect}[1]{\ensuremath{\underline{#1}}}                                    % vector
+\newcommand{\fact}[1]{\ensuremath{#1!}}                                               % factorial
+\newcommand{\inv}[1]{\ensuremath{{#1}^{-1}}}                                           % invert
+\newcommand{\deter}[1]{\ensuremath{\text{det}\left ({#1}\right )}}                    % determinant
+\newcommand{\identity}[0]{\ensuremath{\mathbb{I}}}                                    % identity matrix
+\newcommand{\kerne}[1]{\ensuremath{\text{ker}({#1})}}                                 % kernel
+\newcommand{\gene}[1]{\ensuremath{\text{gen}({#1})}}                                  % gen
+\newcommand{\mat}[1]{\ensuremath{\mathbf{#1}}}                                        % how to mark Matrices
+\newcommand{\pd}[2]{\ensuremath{\frac{\partial{#1}}{\partial{#2}}}}                   % partial derivative
+%\newcommand{\norm}[1]{\ensuremath{|{#1}|}}                                            % norme
+\newcommand{\norm}[1]{\ensuremath{\left\Vert {#1}\right\Vert}}                        % norme
+\newcommand{\jac}[3]{\ensuremath{\frac{\partial{#1}}{\partial{#2}}\bigg\vert_{{#3}}}}  % jacobian
+\newcommand{\rcfun}[4]{\ensuremath{#1: C^{#2} \; \R^{#3} \rightarrow \R^{#4}}}           % real C function
+\newcommand{\transp}[1]{\ensuremath{#1^{T}}}                                           % transpose
+\newcommand{\atan}[1]{\ensuremath{\text{atan}(#1)}}                                   % arctangeant
+\newcommand{\est}[1]{\ensuremath{\hat{#1}}}                                           % estimation
+\newcommand{\esterr}[1]{\ensuremath{\tilde{#1}}}                                      % estimation error
+
+
+\def\R{\ensuremath{\mathbb{R}}} % real numbers
+\def\N{\ensuremath{\mathbb{N}}} % integers
+\def\C{\ensuremath{\mathbb{C}}} % complex numbers
+
+\newcommand{\isym}[0]{\ensuremath{j}}                                   % complex 
+
+
+\usepackage{listings}
+\usepackage{color}
+\lstset{%
+  inputencoding=utf8,
+  extendedchars=true,
+  literate=%
+  {é}{{\'{e}}}1
+  {è}{{\`{e}}}1
+  {ê}{{\^{e}}}1
+  {ë}{{\¨{e}}}1
+  {û}{{\^{u}}}1
+  {ù}{{\`{u}}}1
+  {â}{{\^{a}}}1
+  {à}{{\`{a}}}1
+  {î}{{\^{i}}}1
+  {ô}{{\^{o}}}1
+  {ç}{{\c{c}}}1
+  {Ç}{{\c{C}}}1
+  {É}{{\'{E}}}1
+  {Ê}{{\^{E}}}1
+  {À}{{\`{A}}}1
+  {Â}{{\^{A}}}1
+  {Î}{{\^{I}}}1
+}
+\lstdefinestyle{mypython}{language=Python, frame=single,basicstyle=\scriptsize, numbers=left, keywordstyle=\color{blue}}
+\lstdefinestyle{mypython2}{language=Python, frame=single,basicstyle=\tiny, numbers=left, keywordstyle=\color{blue}, showspaces=false, showstringspaces=false, showtabs=false}
+
+
+%----------------------------------------
+% Conditional display of correction
+%
+% Uncomment to force showing correction 
+%\newcommand{\showcorrection}{}
+%
+% or define \showcorrection on the command line
+%
+\usepackage[most]{tcolorbox}
+\usepackage{comment}
+\ifdefined\showcorrection
+\newenvironment{correction}
+  {\begin{tcolorbox}[breakable, enhanced]}
+  {\end{tcolorbox}}
+\else
+  \excludecomment{correction}
+\fi
+

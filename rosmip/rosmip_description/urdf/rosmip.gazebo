@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<robot>
+  <gazebo>
+
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+      <robotSimType>rosmip_hardware_gazebo/RosMipHardwareInterface</robotSimType>
+    </plugin>
+    
+    <!--  
+      
+    <plugin name="rosmip_controller" filename="libgazebo_ros_control.so">
+      <robotSimType>rosmip_hardware_gazebo/RosMipHardwareInterface</robotSimType>
+    </plugin>
+    
+    -->
+    
+    <!--    -->
+    <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
+      <alwaysOn>true</alwaysOn>
+      <frameName>imu_link</frameName>
+      <bodyName>imu_link</bodyName>
+      <topicName>imu</topicName>
+      <serviceName>imu_service</serviceName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <updateRate>100.0</updateRate>
+    </plugin>
+    <!-- -->
+
+    <!--
+    <plugin name="imu_pluggin" filename="libhector_gazebo_ros_imu.so">
+      <updateRate>100.0</updateRate>
+      <bodyName>imu_link</bodyName>
+      <frameName>imu_link</frameName>
+      <topicName>imu</topicName>
+      <accelDrift>0.5 0.5 0.5</accelDrift>
+      <accelGaussianNoise>0.35 0.35 0.3</accelGaussianNoise>
+      <rateDrift>0.1 0.1 0.1</rateDrift>
+      <rateGaussianNoise>0.05 0.05 0.015</rateGaussianNoise>
+      <headingDrift>0.1</headingDrift>
+      <headingGaussianNoise>0.05</headingGaussianNoise>
+    </plugin>
+    -->
+    
+
+  </gazebo>
+</robot>	

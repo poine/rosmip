@@ -1,0 +1,11 @@
+rosmip_joint_publisher:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+rosmip_left_wheel_controller:
+    type: effort_controllers/JointEffortController
+    joint: left_wheel_joint
+
+rosmip_right_wheel_controller:
+    type: effort_controllers/JointEffortController
+    joint: right_wheel_joint

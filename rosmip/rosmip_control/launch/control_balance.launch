@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+  <rosparam command="load" file="$(find rosmip_control)/config/control_balance.yaml" />
+
+  <node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="rosmip_joint_publisher rosmip_imu_controller rosmip_balance_controller"/>
+  <!-- <node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="rosmip_joint_publisher rosmip_balance_controller"/> -->
+  <!--<node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="rosmip_joint_publisher rosmip_imu_controller"/>-->
+  
+</launch>

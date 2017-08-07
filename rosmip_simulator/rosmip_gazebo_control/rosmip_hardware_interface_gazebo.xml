@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<library path="lib/librosmip_hardware_interface_gazebo">
+  <class name="rosmip_hardware_gazebo/RosMipHardwareInterface" type="rosmip_hardware_gazebo::RosMipHardwareInterface" base_class_type="gazebo_ros_control::RobotHWSim">
+  <description>
+    This class represents the rosmip hardware in Gazebo for the gazebo_ros_control plugin.
+  </description>
+  </class>
+</library>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<package>
+  <name>rosmip_control</name>
+  <version>0.0.0</version>
+  <description>The rosmip_control package</description>
+
+  <maintainer email="poine@todo.todo">poine</maintainer>
+
+  <license>GPLv3</license>
+
+
+  <!-- Url tags are optional, but multiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <!-- Example: -->
+  <!-- <url type="website">http://wiki.ros.org/rosmip_control</url> -->
+
+
+  <author email="poinix@gmail.com">Antoine Drouin</author>
+
+
+  <!-- The *_depend tags are used to specify dependencies -->
+  <!-- Dependencies can be catkin packages or system dependencies -->
+  <!-- Examples: -->
+  <!-- Use build_depend for packages you need at compile time: -->
+  <!--   <build_depend>message_generation</build_depend> -->
+  <!-- Use buildtool_depend for build tool packages: -->
+  <!--   <buildtool_depend>catkin</buildtool_depend> -->
+  <!-- Use run_depend for packages you need at runtime: -->
+  <!--   <run_depend>message_runtime</run_depend> -->
+  <build_depend>controller_interface</build_depend>
+  <run_depend>controller_interface</run_depend>
+
+  
+  <!-- Use test_depend for packages you need only for testing: -->
+  <!--   <test_depend>gtest</test_depend> -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <controller_interface plugin="${prefix}/rosmip_control_plugins.xml"/>
+  </export>
+</package>

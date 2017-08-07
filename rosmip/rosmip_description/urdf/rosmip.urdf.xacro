@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<robot name="rosmip" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Dimensions -->
+  <xacro:property name="PI" value="3.1415926535897931" />
+
+  <xacro:property name="chassis_length" value="0.04" /> <!-- 0.005-->
+  <xacro:property name="chassis_width"  value="0.065" />
+  <xacro:property name="chassis_height" value="0.12" />
+  <xacro:property name="chassis_mass"   value="0.2" />
+  <xacro:property name="chassis_vert_offset" value="0.1" /> <!-- 0.1-->
+
+  <xacro:property name="wheel_radius" value="0.045" />
+  <xacro:property name="wheel_width"  value="0.01" />
+  <xacro:property name="wheel_track"  value="0.08" />
+  <xacro:property name="wheel_mass"   value="0.02" />
+  <!--<xacro:property name="wheel_joint_damping" value="0.2" />
+  <xacro:property name="wheel_joint_friction" value="0.7" /> -->
+  <xacro:property name="wheel_joint_damping" value="0.01" />
+  <xacro:property name="wheel_joint_friction" value="0.0" />
+  
+  <material name="light_grey"><color rgba="0.4 0.4 0.4 1.0" /></material>
+  <material name="yellow"><color rgba="0.8 0.8 0.0 1.0" /></material>
+  <material name="black"><color rgba="0.15 0.15 0.15 1.0" /></material>
+
+  <!-- Inertia macros -->
+  <xacro:include filename="$(find rosmip_description)/urdf/inertias.urdf.xacro" />
+  
+  <!-- Wheels -->
+  <xacro:macro name="wheel" params="prefix lr_reflect *joint_pose">
+
+    <link name="${prefix}_wheel_link">
+      <visual>
+	<!--
+	<origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
+        <geometry>
+	  <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+        <material name="yellow" />
+	-->
+	<origin xyz="0 0 0" rpy="0 0 ${lr_reflect*PI/2}"/>
+        <geometry>
+	  <mesh filename="package://rosmip_description/meshes/wheel_test.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+        </geometry>
+      </collision>
+      <xacro:inertial_cylinder_with_pose mass="${wheel_mass}" radius="${wheel_radius}" height="${wheel_width}">
+	<origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
+      </xacro:inertial_cylinder_with_pose> 
+    </link>
+
+    <gazebo reference="${prefix}_wheel_link">
+      <material>Gazebo/DarkGrey</material>
+      <!--<material>Gazebo/WoodFloor</material>-->
+      <!--<material>Gazebo/WoodPallet</material>-->
+    </gazebo>
+    
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="chassis_link"/>
+      <child link="${prefix}_wheel_link" />
+      <xacro:insert_block name="joint_pose" />
+      <axis xyz="0 1 0" />
+      <dynamics damping="${wheel_joint_damping}" friction="${wheel_joint_friction}"/>
+    </joint>
+
+    
+    <transmission name="${prefix}_wheel_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}_wheel_joint">
+	<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}_actuator">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+	<mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+
+
+
+  <xacro:wheel prefix="left" lr_reflect="1">
+    <origin xyz="0 ${wheel_track/2} ${wheel_radius+0.0}" rpy="0 0 0" />
+  </xacro:wheel>
+  <xacro:wheel prefix="right"  lr_reflect="-1">
+    <origin xyz="0 ${-wheel_track/2} ${wheel_radius+0.0}" rpy="0 0 0" />
+  </xacro:wheel>
+
+
+
+  
+  <!-- Body -->
+  <link name="base_link"></link>
+
+  <joint name="base_link_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="base_link"/>
+    <child link="chassis_link" />
+  </joint>
+
+  <link name="chassis_link">
+    <visual>
+      <origin xyz="0 0 ${chassis_vert_offset}" rpy="0 0 0"/>
+      <geometry>
+	<mesh filename="package://rosmip_description/meshes/body_minion.dae"/>
+	<!--<box size="${chassis_length} ${chassis_width} ${chassis_height}"/>-->
+      </geometry>
+      <!--<material name="yellow" />-->
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${chassis_vert_offset}"/>
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_cuboid_with_pose mass="${chassis_mass}" x_length="${chassis_length}" y_length="${chassis_width}" z_length="${chassis_height}">
+      <origin xyz="0.00  0.00 ${chassis_vert_offset}" rpy="0 0 0"/>
+    </xacro:inertial_cuboid_with_pose> 
+  </link>
+
+  <!--
+   <gazebo reference="chassis_link">
+    <material>Gazebo/YellowTransparent</material>
+  </gazebo>
+  -->
+
+  
+  <!-- IMU -->
+  <link name="imu_link"/>
+  <joint name="imu_joint" type="fixed">
+    <origin xyz="0 0 ${chassis_vert_offset}" rpy="${PI/2} 0 ${PI/2} " />
+    <parent link="base_link" />
+    <child link="imu_link" />
+  </joint>
+
+  
+  <gazebo reference="imu_link">
+  
+  </gazebo>
+
+  
+  <!-- Bring in simulation data for Gazebo. -->
+  <xacro:include filename="$(find rosmip_description)/urdf/rosmip.gazebo" />
+
+
+  
+</robot>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+  <rosparam command="load" file="$(find rosmip_control)/config/control.yaml" />
+
+  <!--<node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="rosmip_joint_publisher rosmip_velocity_controller \-\-shutdown\-timeout 3"/>-->
+   <node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="rosmip_joint_publisher rosmip_left_wheel_controller rosmip_right_wheel_controller \-\-shutdown-timeout 3"/>
+  <!-- <node name="base_controller_spawner" pkg="controller_manager" type="spawner" args=" rosmip_left_wheel_controller"/> -->
+</launch>
