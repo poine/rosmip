@@ -93,6 +93,9 @@ namespace rosmip_controller {
     hardware_interface::ImuSensorInterface* i = hw->get<hardware_interface::ImuSensorInterface>();
     imu_ = i->getHandle("imu");
 
+    hardware_interface::DsmInterface* d = hw->get<hardware_interface::DsmInterface>();
+    dsm_ = d->getHandle("dsm");
+    
     state_est_.init();
     
     debug_pub_.reset(new realtime_tools::RealtimePublisher<rosmip_control::debug>(controller_nh, "debug", 100));
@@ -144,7 +147,7 @@ namespace rosmip_controller {
       ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::update... switching motors off");
     }
 
-    ROS_INFO(" __DSM %d %x", hw_->dsm_ok(), hw_); 
+    ROS_INFO(" __DSM %d %d", hw_->dsm_ok(), *dsm_.getOk()); 
     
     if (hw_->dsm_ok_) {
       setpoint_.phi_dot   = DRIVE_RATE_ADVANCED * hw_->drive_stick_;

@@ -81,7 +81,17 @@ RosMipHardwareInterface::RosMipHardwareInterface():
   hardware_interface::ImuSensorHandle imu_sensor_handle(imu_data_);
   imu_sensor_interface_.registerHandle(imu_sensor_handle);
   registerInterface(&imu_sensor_interface_);
- 
+
+  // register DSM
+  dsm_data_.name = "dsm";
+  dsm_data_.ok = &dsm_ok_;
+  dsm_data_.drive_stick = &drive_stick_;
+  dsm_data_.turn_stick = &turn_stick_;
+  hardware_interface::DsmHandle dsm_handle;
+  dsm_interface_.registerHandle(dsm_handle);
+  registerInterface(&dsm_interface_);
+
+  
 }
 
 /*******************************************************************************
@@ -191,7 +201,7 @@ void RosMipHardwareInterface::read() {
     if(fabs(drive_stick_)<DSM_DEAD_ZONE) drive_stick_ = 0.0;
     if(fabs(turn_stick_)<DSM_DEAD_ZONE)  turn_stick_  = 0.0;
     dsm_ok_ = true;
-    ROS_INFO(" read HW DSM  new data %f %f %x", turn_stick_, drive_stick_, this);
+    //ROS_INFO(" read HW DSM  new data %f %f %x", turn_stick_, drive_stick_, this);
   }
   else if (rc_nanos_since_last_dsm_packet() > 0.1*1e9) { //rc_is_dsm_active()==0) {
     ROS_INFO(" read HW DSM not active");

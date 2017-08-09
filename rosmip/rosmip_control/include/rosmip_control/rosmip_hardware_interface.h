@@ -8,6 +8,8 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/imu_sensor_interface.h>
 
+#include <rosmip_control/dsm_interface.h>
+
 #define NB_JOINTS 2
 
 #include "roboticscape.h"
@@ -27,7 +29,7 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
   void switch_motors_off() { rc_disable_motors(); }
 
   bool dsm_ok() { return dsm_ok_; }
-  volatile bool dsm_ok_;
+  bool dsm_ok_;
   float turn_stick_, drive_stick_;
   
  private:
@@ -42,11 +44,15 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
   double imu_orientation_[4]; // quat is in the order of geometry_msg, ie x, y, z, w
   double imu_angular_velocity_[3];
   double imu_linear_acceleration_[3];
+  // DSM
+  hardware_interface::DsmHandle::Data dsm_data_;
 
+  
   hardware_interface::JointStateInterface    js_interface_;
   hardware_interface::EffortJointInterface   ej_interface_;
   hardware_interface::ImuSensorInterface     imu_sensor_interface_;
-
+  hardware_interface::DsmInterface           dsm_interface_;
+  
   rc_imu_data_t rc_imu_data_;
 
   void DSMCallback(void);
