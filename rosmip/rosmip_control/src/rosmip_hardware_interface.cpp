@@ -39,11 +39,9 @@ void test_imu_interrupt() {
   //printf("blaaa\n");
 }
 
-void test_dsm_callback() {
-  printf("dsm cbk\n");
+void _dsm_callback(void* data) {
+  reinterpret_cast<RosMipHardwareInterface*>(data)->DSMCallback();
 }
-
-
 
 
 /*******************************************************************************
@@ -132,18 +130,13 @@ bool RosMipHardwareInterface::start() {
     //rc_blink_led(RED, 5, 5);
     return false;
   }
-
-  // start dsm listener
-  rc_initialize_dsm();
-  //rc_set_dsm_data_func(&test_dsm_callback);
-  //void (*dsm_ready_func)() = boost::bind(&RosMipHardwareInterface::DSMCallback, this, _1);
-  //boost::function<void (void)> dsm_ready_func(boost::bind(&RosMipHardwareInterface::DSMCallback, this));
-  //void (*dsm_ready_func1)() = static_cast<void (*)()>(dsm_ready_func);
-  //rc_set_dsm_data_func(dsm_ready_func1);
   //rc_set_imu_interrupt_func(&test_imu_interrupt);
   
+  // start dsm listener
+  rc_initialize_dsm();
+  rc_set_dsm_data_func(&_dsm_callback, reinterpret_cast<void*>(this));
+  
   rc_set_state(RUNNING);
-  //rc_enable_motors();
   return true;
 }
 
