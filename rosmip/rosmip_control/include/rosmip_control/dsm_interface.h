@@ -23,7 +23,9 @@ namespace hardware_interface {
 
     std::string getName()  const {return name_;}
     const bool* getOk()    const { return ok_; }
-
+    const float* getDriveStick() const { return drive_stick_; }
+    const float* getTurnStick() const { return turn_stick_; }
+    
   private:
     std::string name_;
     bool* ok_;

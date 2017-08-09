@@ -30,10 +30,10 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 
 // DSM channel config
 #define DSM_DRIVE_POL			1
-#define DSM_TURN_POL		       -1
+#define DSM_TURN_POL		        1
 #define DSM_DRIVE_CH			3
 #define DSM_TURN_CH			2
-#define DSM_DEAD_ZONE			0.04
+#define DSM_DEAD_ZONE			0.02
 
 void test_imu_interrupt() {
   //printf("blaaa\n");
@@ -87,7 +87,7 @@ RosMipHardwareInterface::RosMipHardwareInterface():
   dsm_data_.ok = &dsm_ok_;
   dsm_data_.drive_stick = &drive_stick_;
   dsm_data_.turn_stick = &turn_stick_;
-  hardware_interface::DsmHandle dsm_handle;
+  hardware_interface::DsmHandle dsm_handle(dsm_data_);
   dsm_interface_.registerHandle(dsm_handle);
   registerInterface(&dsm_interface_);
 
@@ -192,8 +192,6 @@ void RosMipHardwareInterface::read() {
   
   //ROS_INFO(" read HW %f %f %f %f", imu_orientation_[0], imu_orientation_[1], imu_orientation_[2], imu_orientation_[3]);
   
-  //ROS_INFO(" read HW %f", rc_get_dsm_ch_normalized(1));
-
   // FIXME... where is the mutex ?
   if(rc_is_new_dsm_data()){
     turn_stick_  = rc_get_dsm_ch_normalized(DSM_TURN_CH) * DSM_TURN_POL;
@@ -204,10 +202,10 @@ void RosMipHardwareInterface::read() {
     //ROS_INFO(" read HW DSM  new data %f %f %x", turn_stick_, drive_stick_, this);
   }
   else if (rc_nanos_since_last_dsm_packet() > 0.1*1e9) { //rc_is_dsm_active()==0) {
-    ROS_INFO(" read HW DSM not active");
+    //ROS_INFO(" read HW DSM not active");
     dsm_ok_ = false;
   }
-  ROS_INFO(" DSM %d", dsm_ok_);
+  //ROS_INFO(" DSM %d", dsm_ok_);
 }
 
 /*******************************************************************************

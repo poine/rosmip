@@ -147,15 +147,15 @@ namespace rosmip_controller {
       ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::update... switching motors off");
     }
 
-    ROS_INFO(" __DSM %d %d", hw_->dsm_ok(), *dsm_.getOk()); 
+    //ROS_INFO(" __DSM %d %d", hw_->dsm_ok(), *dsm_.getOk()); 
     
-    if (hw_->dsm_ok_) {
-      setpoint_.phi_dot   = DRIVE_RATE_ADVANCED * hw_->drive_stick_;
-      setpoint_.gamma_dot = TURN_RATE_ADVANCED  * hw_->turn_stick_;
-      ROS_INFO("dsm ok");
+    if (*dsm_.getOk()) {
+      setpoint_.phi_dot   = DRIVE_RATE_ADVANCED * *dsm_.getDriveStick();
+      setpoint_.gamma_dot = TURN_RATE_ADVANCED  * *dsm_.getTurnStick();
+      //ROS_INFO("dsm ok");
     }
     else {
-      ROS_INFO("dsm ko");
+      //ROS_INFO("dsm ko");
       setpoint_.phi_dot = 0.;
       setpoint_.gamma_dot = 0.;
     }
@@ -177,8 +177,8 @@ namespace rosmip_controller {
     left_wheel_joint_.setCommand(core_state_.dutyL);
     right_wheel_joint_.setCommand(core_state_.dutyR);
 
-    publishOdometry(now);
-    publishDebug(now);
+    //publishOdometry(now);
+    //publishDebug(now);
     
   }
 
