@@ -1,5 +1,7 @@
 #include <rosmip_control/rosmip_hardware_interface.h>
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 #define __NAME "rosmip_hardware_interface"
 const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_joint"};
@@ -7,10 +9,10 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 
 
 // mechanics
-#define GEARBOX                         75.81  //35.577
-#define ENCODER_RES                     12     //60
-#define WHEEL_RADIUS_M                  0.03   //0.034
-#define TRACK_WIDTH_M                   0.0415 //0.035
+#define GEARBOX                         75.81
+#define ENCODER_RES                     12
+#define WHEEL_RADIUS_M                  0.03
+#define TRACK_WIDTH_M                   0.0415
 
 // electrical hookups
 #define MOTOR_CHANNEL_L                 2
@@ -26,15 +28,32 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define SAMPLE_RATE_HZ 100
 #define DT 0.01	
 
+// DSM channel config
+#define DSM_DRIVE_POL			1
+#define DSM_TURN_POL		       -1
+#define DSM_DRIVE_CH			3
+#define DSM_TURN_CH			2
+#define DSM_DEAD_ZONE			0.04
+
 void test_imu_interrupt() {
   //printf("blaaa\n");
+}
+
+void test_dsm_callback() {
+  printf("dsm cbk\n");
 }
 
 
 
 
-
-RosMipHardwareInterface::RosMipHardwareInterface()
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+RosMipHardwareInterface::RosMipHardwareInterface():
+  dsm_ok_(false),
+  turn_stick_(0.),
+  drive_stick_(0.)
 {
   ROS_INFO_STREAM_NAMED(__NAME, "in RosMipHardwareInterface::RosMipHardwareInterface...");
 
@@ -69,6 +88,17 @@ RosMipHardwareInterface::RosMipHardwareInterface()
  *
  *
  *******************************************************************************/
+RosMipHardwareInterface::~RosMipHardwareInterface() {
+  ROS_INFO(" ~RosMipHardwareInterface");
+  // TODO make sure this is called
+}
+
+
+
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
 bool RosMipHardwareInterface::start() {
 
   if(rc_initialize()){
@@ -95,14 +125,23 @@ bool RosMipHardwareInterface::start() {
 
   // start dsm listener
   rc_initialize_dsm();
-  
+  //rc_set_dsm_data_func(&test_dsm_callback);
+  //void (*dsm_ready_func)() = boost::bind(&RosMipHardwareInterface::DSMCallback, this, _1);
+  //boost::function<void (void)> dsm_ready_func(boost::bind(&RosMipHardwareInterface::DSMCallback, this));
+  //void (*dsm_ready_func1)() = static_cast<void (*)()>(dsm_ready_func);
+  //rc_set_dsm_data_func(dsm_ready_func1);
   //rc_set_imu_interrupt_func(&test_imu_interrupt);
+  
   rc_set_state(RUNNING);
   //rc_enable_motors();
   return true;
 }
 
 
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
 bool RosMipHardwareInterface::shutdown() {
   ROS_INFO("in RosMipHardwareInterface::shutdown");
   rc_power_off_imu();
@@ -112,11 +151,10 @@ bool RosMipHardwareInterface::shutdown() {
 }
 
 
-RosMipHardwareInterface::~RosMipHardwareInterface() {
-  ROS_INFO(" ~RosMipHardwareInterface");
-  // TODO make sure this is called
-}
-
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
 void RosMipHardwareInterface::read() {
   //ROS_INFO(" read HW");
   double left_wheel_angle = rc_get_encoder_pos(ENCODER_CHANNEL_L) * 2 * M_PI / (ENCODER_POLARITY_L * GEARBOX * ENCODER_RES);
@@ -143,10 +181,29 @@ void RosMipHardwareInterface::read() {
   imu_linear_acceleration_[2] = rc_imu_data_.accel[2];
   
   //ROS_INFO(" read HW %f %f %f %f", imu_orientation_[0], imu_orientation_[1], imu_orientation_[2], imu_orientation_[3]);
-  //ROS_INFO(" read HW %f", rc_get_dsm_ch_normalized(1));
   
+  //ROS_INFO(" read HW %f", rc_get_dsm_ch_normalized(1));
+
+  // FIXME... where is the mutex ?
+  if(rc_is_new_dsm_data()){
+    turn_stick_  = rc_get_dsm_ch_normalized(DSM_TURN_CH) * DSM_TURN_POL;
+    drive_stick_ = rc_get_dsm_ch_normalized(DSM_DRIVE_CH)* DSM_DRIVE_POL;
+    if(fabs(drive_stick_)<DSM_DEAD_ZONE) drive_stick_ = 0.0;
+    if(fabs(turn_stick_)<DSM_DEAD_ZONE)  turn_stick_  = 0.0;
+    dsm_ok_ = true;
+    ROS_INFO(" read HW DSM  new data %f %f %x", turn_stick_, drive_stick_, this);
+  }
+  else if (rc_nanos_since_last_dsm_packet() > 0.1*1e9) { //rc_is_dsm_active()==0) {
+    ROS_INFO(" read HW DSM not active");
+    dsm_ok_ = false;
+  }
+  ROS_INFO(" DSM %d", dsm_ok_);
 }
 
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
 void RosMipHardwareInterface::write() {
   //ROS_INFO(" write HW");
   //const float gain = 100.;
@@ -158,6 +215,11 @@ void RosMipHardwareInterface::write() {
   rc_set_motor(MOTOR_CHANNEL_R, MOTOR_POLARITY_R * dutyR);
   
 }
+
+void RosMipHardwareInterface::DSMCallback(void) {
+}
+
+
 
 #include <controller_manager/controller_manager.h>
 
@@ -177,7 +239,7 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   controller_manager::ControllerManager cm(&hw, nh);
   ros::Duration period(DT);
-  while (ros::ok() && rc_get_state()!=EXITING)
+  while (ros::ok() and rc_get_state()!=EXITING)
   {
     //ROS_INFO("loop");
     hw.read();

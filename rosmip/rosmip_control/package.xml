@@ -39,5 +39,6 @@
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <controller_interface plugin="${prefix}/rosmip_control_plugins.xml"/>
+    <controller_interface plugin="${prefix}/rosmip_control_plugin_legacy.xml"/>
   </export>
 </package>

@@ -137,6 +137,12 @@ add_library(rosmip_controller
   src/tipping_monitor.cpp
 )
 
+add_library(rosmip_controller_legacy
+  src/rosmip_controller_legacy.cpp
+  src/state_estimation.cpp
+  src/tipping_monitor.cpp
+)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -157,11 +163,19 @@ add_executable(rosmip_hardware_interface_node
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(rosmip_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+# commented to speed up build while developing
+#add_dependencies(rosmip_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+#add_dependencies(rosmip_controller_legacy ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 
 target_link_libraries(rosmip_controller
+  ${catkin_LIBRARIES} roboticscape 
+)
+
+target_link_libraries(rosmip_controller_legacy
   ${catkin_LIBRARIES} roboticscape 
 )
 

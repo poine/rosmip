@@ -8,6 +8,9 @@
   <include file="$(find rosmip_description)/launch/description.launch">
     <arg name="config" value="$(arg config)" />	
   </include>	       
-  <include file="$(find rosmip_control)/launch/control_balance.launch" />
+
+  <!--<include file="$(find rosmip_control)/launch/control_balance.launch" /> -->
+  <include file="$(find rosmip_control)/launch/control_legacy.launch" />
+  
 
 </launch>
