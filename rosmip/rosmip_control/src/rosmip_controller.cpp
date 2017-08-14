@@ -126,7 +126,7 @@ namespace rosmip_controller {
     double phiL = left_wheel_joint_.getPosition();
     double phiR = right_wheel_joint_.getPosition();
 
-    state_est_.update(phiL, phiR, now);
+    state_est_.update(imu_.getOrientation(), phiL, phiR, now);
 
     // this we'll soon get from state est
     double phidL = left_wheel_joint_.getVelocity();

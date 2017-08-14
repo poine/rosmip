@@ -12,7 +12,12 @@ namespace rosmip_controller {
   }
 
   void  StateEstimator::init() {
-    
+    q_imu_to_base_.setRPY(0, 0, -M_PI/2); // this is not correct
+                                          // this should be fetched from the robot description
+                                          // and in theory this should be (math.pi/2, 0, math.pi/2)
+                                          // with the current configuration
+                                          // so, there is something fishy with the ORIENTATION_Y_BLAH in hardware interface
+    //q_imu_to_base_.setRPY(M_PI/2, 0, M_PI/2);
     
   }
 
@@ -28,7 +33,12 @@ namespace rosmip_controller {
     
   }
   
-  void  StateEstimator::update(double left_pos, double right_pos, const ros::Time &time) {
+  void  StateEstimator::update(const double* odom_to_imu_q, double left_pos, double right_pos, const ros::Time &time) {
+
+    q_odom_to_imu_ = tf::Quaternion(odom_to_imu_q[0], odom_to_imu_q[1], odom_to_imu_q[2], odom_to_imu_q[3]); // x, y, z, w
+    q_odom_to_base_ =  q_odom_to_imu_ * q_imu_to_base_;
+
+
     /// Get current wheel joint positions:
     const double left_wheel_cur_pos  = left_pos  * wheel_radius_;
     const double right_wheel_cur_pos = right_pos * wheel_radius_;

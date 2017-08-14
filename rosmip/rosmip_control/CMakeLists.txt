@@ -141,6 +141,7 @@ add_library(rosmip_controller_legacy
   src/rosmip_controller_legacy.cpp
   src/state_estimation.cpp
   src/tipping_monitor.cpp
+  src/input_manager.cpp
 )
 
 ## Add cmake target dependencies of the library

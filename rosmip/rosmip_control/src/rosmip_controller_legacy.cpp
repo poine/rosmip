@@ -42,8 +42,11 @@ namespace rosmip_controller {
 #define DRIVE_RATE_ADVANCED		26
 #define TURN_RATE_ADVANCED		10
   
-  
-  RosMipLegacyController::RosMipLegacyController():
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+RosMipLegacyController::RosMipLegacyController():
     enable_odom_tf_(true)
   {
     ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::RosMipLegacyController...");
@@ -71,18 +74,26 @@ namespace rosmip_controller {
     rc_pid_filter(&D3_, D3_KP, D3_KI, D3_KD, 4*DT, DT);
     rc_enable_saturation(&D3_, -STEERING_INPUT_MAX, STEERING_INPUT_MAX);
     
-  }
+}
 
-  RosMipLegacyController:: ~RosMipLegacyController() {
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+RosMipLegacyController:: ~RosMipLegacyController() {
     ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::~RosMipLegacyController...");
-  }
+}
 
 
   
-  bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
 				    ros::NodeHandle& root_nh,
 				    ros::NodeHandle& controller_nh)
-  {
+{
 
     ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::init...");
     hw_ = static_cast<RosMipHardwareInterface*>(hw);
@@ -93,10 +104,12 @@ namespace rosmip_controller {
     hardware_interface::ImuSensorInterface* i = hw->get<hardware_interface::ImuSensorInterface>();
     imu_ = i->getHandle("imu");
 
-    hardware_interface::DsmInterface* d = hw->get<hardware_interface::DsmInterface>();
-    dsm_ = d->getHandle("dsm");
+    //hardware_interface::DsmInterface* d = hw->get<hardware_interface::DsmInterface>();
+    //dsm_ = d->getHandle("dsm");
     
     state_est_.init();
+
+    inp_mng_.init(hw, controller_nh);
     
     debug_pub_.reset(new realtime_tools::RealtimePublisher<rosmip_control::debug>(controller_nh, "debug", 100));
     const std::string base_frame_id_ = "base_link";
@@ -107,35 +120,35 @@ namespace rosmip_controller {
     tf_odom_pub_->msg_.transforms[0].child_frame_id = base_frame_id_;
     tf_odom_pub_->msg_.transforms[0].header.frame_id = odom_frame_id_;
 
-    q_imu_to_base_.setRPY(0, 0, -M_PI/2); // this is not correct
-                                          // this should be fetched from the robot description
-                                          // and in theory this should be (math.pi/2, 0, math.pi/2)
-                                          // with the current configuration
-                                          // so, there is something fishy with the ORIENTATION_Y_BLAH in hardware interface
-    //q_imu_to_base_.setRPY(M_PI/2, 0, M_PI/2);
 
+ 
     ROS_INFO_STREAM_NAMED(__NAME, "leaving RosMipLegacyController::init...");
     return true;
-  }
+}
 
-  void RosMipLegacyController::starting(const ros::Time& time) {
-    ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::starting...");
-    state_est_.starting(time);
-  }
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+void RosMipLegacyController::starting(const ros::Time& time) {
+  ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::starting...");
+  state_est_.starting(time);
+}
   
-  void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& dt) {
-    // state estimation
-    const double* odom_to_imu_q =  imu_.getOrientation(); 
-    q_odom_to_imu_ = tf::Quaternion(odom_to_imu_q[0], odom_to_imu_q[1], odom_to_imu_q[2], odom_to_imu_q[3]); // x, y, z, w
-    q_odom_to_base_ =  q_odom_to_imu_ * q_imu_to_base_;
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& dt) {
+  // state estimation
+  state_est_.update(imu_.getOrientation(), left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition(), now);
 
-    core_state_.theta = get_pitch(q_odom_to_base_) + CAPE_MOUNT_ANGLE;;
-    core_state_.wheelAngleL = left_wheel_joint_.getPosition();
-    core_state_.wheelAngleR = right_wheel_joint_.getPosition();
-    core_state_.phi = ((core_state_.wheelAngleL+core_state_.wheelAngleR)/2) + core_state_.theta;
-    core_state_.gamma = (core_state_.wheelAngleR-core_state_.wheelAngleL) * (WHEEL_RADIUS_M/TRACK_WIDTH_M);
-    tip_mon_.update(core_state_.theta);
-    state_est_.update(core_state_.wheelAngleL, core_state_.wheelAngleR, now);
+  core_state_.theta = get_pitch(state_est_.q_odom_to_base_) + CAPE_MOUNT_ANGLE;;
+  core_state_.wheelAngleL = left_wheel_joint_.getPosition();
+  core_state_.wheelAngleR = right_wheel_joint_.getPosition();
+  core_state_.phi = ((core_state_.wheelAngleL+core_state_.wheelAngleR)/2) + core_state_.theta;
+  core_state_.gamma = (core_state_.wheelAngleR-core_state_.wheelAngleL) * (WHEEL_RADIUS_M/TRACK_WIDTH_M);
+  tip_mon_.update(core_state_.theta);
  
     if (tip_mon_.prev_status_ == TIPPED and tip_mon_.status_ == UPRIGHT) {
       resetControlLaw();
@@ -148,10 +161,10 @@ namespace rosmip_controller {
     }
 
     //ROS_INFO(" __DSM %d %d", hw_->dsm_ok(), *dsm_.getOk()); 
-    
-    if (*dsm_.getOk()) {
-      setpoint_.phi_dot   = DRIVE_RATE_ADVANCED * *dsm_.getDriveStick();
-      setpoint_.gamma_dot = TURN_RATE_ADVANCED  * *dsm_.getTurnStick();
+ #if 1   
+    if (*(inp_mng_.dsm_).getOk()) {
+      setpoint_.phi_dot   = DRIVE_RATE_ADVANCED * *(inp_mng_.dsm_).getDriveStick();
+      setpoint_.gamma_dot = TURN_RATE_ADVANCED  * *(inp_mng_.dsm_).getTurnStick();
       //ROS_INFO("dsm ok");
     }
     else {
@@ -159,6 +172,13 @@ namespace rosmip_controller {
       setpoint_.phi_dot = 0.;
       setpoint_.gamma_dot = 0.;
     }
+#endif
+    
+    // Retreive current velocity command and time step:
+    InputManager::Commands curr_cmd = *(inp_mng_.command_.readFromRT());
+    //const double dt = (time - curr_cmd.stamp).toSec();
+    //std::cerr << "cmd " << curr_cmd.lin << " " << curr_cmd.ang << std::endl;
+    
     
     setpoint_.phi += setpoint_.phi_dot*DT;
     core_state_.d2_u = rc_march_filter(&D2_, setpoint_.phi-core_state_.phi);
@@ -177,63 +197,80 @@ namespace rosmip_controller {
     left_wheel_joint_.setCommand(core_state_.dutyL);
     right_wheel_joint_.setCommand(core_state_.dutyR);
 
-    //publishOdometry(now);
+    publishOdometry(now);
     //publishDebug(now);
     
-  }
+}
 
-  void RosMipLegacyController::publishOdometry(const ros::Time& now) {
-    // Publish tf /odom frame
-    if (enable_odom_tf_ && tf_odom_pub_->trylock())
-      {
-        geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
-        odom_frame.header.stamp = now;
-        odom_frame.transform.translation.x = state_est_.x_;
-        odom_frame.transform.translation.y = state_est_.y_;
-        odom_frame.transform.rotation.x = q_odom_to_base_.x();
-	odom_frame.transform.rotation.y = q_odom_to_base_.y();
-	odom_frame.transform.rotation.z = q_odom_to_base_.z();
-	odom_frame.transform.rotation.w = q_odom_to_base_.w();
-        tf_odom_pub_->unlockAndPublish();
-      }
-  }
-
-  void RosMipLegacyController::publishDebug(const ros::Time& now) {
-    if (debug_pub_->trylock()) {
-      //debug_pub_->msg_.header.stamp = now;
-      debug_pub_->msg_.theta = core_state_.theta;
-      //debug_pub_->msg_.thetad = thetad;
-      debug_pub_->msg_.phiL = core_state_.wheelAngleL;
-      debug_pub_->msg_.phiR = core_state_.wheelAngleR;
-      //debug_pub_->msg_.phidL = phidL;
-      //debug_pub_->msg_.phidR = phidR;
-      debug_pub_->msg_.theta_sp = setpoint_.theta;
-      debug_pub_->msg_.phiL_sp = setpoint_.phi;
-      debug_pub_->msg_.phiR_sp = setpoint_.gamma;
-      debug_pub_->msg_.tauL = core_state_.dutyL;
-      debug_pub_->msg_.tauR = core_state_.dutyR;
-      debug_pub_->unlockAndPublish();
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+void RosMipLegacyController::publishOdometry(const ros::Time& now) {
+  // Publish tf /odom frame
+  if (enable_odom_tf_ && tf_odom_pub_->trylock())
+    {
+      geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
+      odom_frame.header.stamp = now;
+      odom_frame.transform.translation.x = state_est_.x_;
+      odom_frame.transform.translation.y = state_est_.y_;
+      odom_frame.transform.rotation.x = state_est_.q_odom_to_base_.x();
+      odom_frame.transform.rotation.y = state_est_.q_odom_to_base_.y();
+      odom_frame.transform.rotation.z = state_est_.q_odom_to_base_.z();
+      odom_frame.transform.rotation.w = state_est_.q_odom_to_base_.w();
+      tf_odom_pub_->unlockAndPublish();
     }
-  }
+}
 
-  void RosMipLegacyController::resetControlLaw() {
-    rc_reset_filter(&D1_);
-    rc_reset_filter(&D2_);
-    rc_reset_filter(&D3_);
-    setpoint_.theta = 0.0f;
-    setpoint_.phi   = 0.0f;
-    setpoint_.gamma = 0.0f;
-    rc_set_motor_all(0.0f);
-    rc_set_encoder_pos(ENCODER_CHANNEL_L,0);
-    rc_set_encoder_pos(ENCODER_CHANNEL_R,0);
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+void RosMipLegacyController::publishDebug(const ros::Time& now) {
+  if (debug_pub_->trylock()) {
+    //debug_pub_->msg_.header.stamp = now;
+    debug_pub_->msg_.theta = core_state_.theta;
+    //debug_pub_->msg_.thetad = thetad;
+    debug_pub_->msg_.phiL = core_state_.wheelAngleL;
+    debug_pub_->msg_.phiR = core_state_.wheelAngleR;
+    //debug_pub_->msg_.phidL = phidL;
+    //debug_pub_->msg_.phidR = phidR;
+    debug_pub_->msg_.theta_sp = setpoint_.theta;
+    debug_pub_->msg_.phiL_sp = setpoint_.phi;
+    debug_pub_->msg_.phiR_sp = setpoint_.gamma;
+    debug_pub_->msg_.tauL = core_state_.dutyL;
+    debug_pub_->msg_.tauR = core_state_.dutyR;
+    debug_pub_->unlockAndPublish();
   }
+}
+
+
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+void RosMipLegacyController::resetControlLaw() {
+  rc_reset_filter(&D1_);
+  rc_reset_filter(&D2_);
+  rc_reset_filter(&D3_);
+  setpoint_.theta = 0.0f;
+  setpoint_.phi   = 0.0f;
+  setpoint_.gamma = 0.0f;
+  rc_set_motor_all(0.0f);
+  rc_set_encoder_pos(ENCODER_CHANNEL_L,0);
+  rc_set_encoder_pos(ENCODER_CHANNEL_R,0);
+}
+
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+void RosMipLegacyController::stopping(const ros::Time&) {
+  ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::stop...");
+  left_wheel_joint_.setCommand(0);
+  right_wheel_joint_.setCommand(0);
+}
   
-  void RosMipLegacyController::stopping(const ros::Time&) {
-    ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::stop...");
-    left_wheel_joint_.setCommand(0);
-    right_wheel_joint_.setCommand(0);
-  }
-
   
   PLUGINLIB_EXPORT_CLASS(rosmip_controller::RosMipLegacyController, controller_interface::ControllerBase);
 }

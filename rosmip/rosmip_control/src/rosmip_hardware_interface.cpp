@@ -1,7 +1,6 @@
 #include <rosmip_control/rosmip_hardware_interface.h>
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <thread>
 
 #define __NAME "rosmip_hardware_interface"
 const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_joint"};
@@ -26,7 +25,7 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 
 // IMU
 #define SAMPLE_RATE_HZ 100
-#define DT 0.01	
+#define DT (1./SAMPLE_RATE_HZ)
 
 // DSM channel config
 #define DSM_DRIVE_POL			1
@@ -35,13 +34,9 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define DSM_TURN_CH			2
 #define DSM_DEAD_ZONE			0.02
 
-void test_imu_interrupt() {
-  //printf("blaaa\n");
-}
 
-void _dsm_callback(void* data) {
-  reinterpret_cast<RosMipHardwareInterface*>(data)->DSMCallback();
-}
+void _imu_callback(void* data) { reinterpret_cast<RosMipHardwareInterface*>(data)->IMUCallback(); }
+void _dsm_callback(void* data) { reinterpret_cast<RosMipHardwareInterface*>(data)->DSMCallback(); }
 
 
 /*******************************************************************************
@@ -130,7 +125,7 @@ bool RosMipHardwareInterface::start() {
     //rc_blink_led(RED, 5, 5);
     return false;
   }
-  //rc_set_imu_interrupt_func(&test_imu_interrupt);
+  rc_set_imu_interrupt_func(&_imu_callback, reinterpret_cast<void*>(this));
   
   // start dsm listener
   rc_initialize_dsm();
@@ -167,21 +162,6 @@ void RosMipHardwareInterface::read() {
   joint_position_[0] = left_wheel_angle;
   joint_position_[1] = right_wheel_angle;
 
-  // TODO acquire mutex
-  // imu_orientation is in the order of geometry_msg, ie x, y, z, w
-  // wheras dmp_quat is w, x, y, z
-  imu_orientation_[0] = rc_imu_data_.dmp_quat[1];
-  imu_orientation_[1] = rc_imu_data_.dmp_quat[2];
-  imu_orientation_[2] = rc_imu_data_.dmp_quat[3];
-  imu_orientation_[3] = rc_imu_data_.dmp_quat[0];
-
-  imu_angular_velocity_[0] = rc_imu_data_.gyro[0]/180.*M_PI; // WTF are those units !!!
-  imu_angular_velocity_[1] = rc_imu_data_.gyro[1]/180.*M_PI;
-  imu_angular_velocity_[2] = rc_imu_data_.gyro[2]/180.*M_PI; 
-
-  imu_linear_acceleration_[0] = rc_imu_data_.accel[0];
-  imu_linear_acceleration_[1] = rc_imu_data_.accel[1];
-  imu_linear_acceleration_[2] = rc_imu_data_.accel[2];
   
   //ROS_INFO(" read HW %f %f %f %f", imu_orientation_[0], imu_orientation_[1], imu_orientation_[2], imu_orientation_[3]);
   
@@ -207,7 +187,6 @@ void RosMipHardwareInterface::read() {
  *******************************************************************************/
 void RosMipHardwareInterface::write() {
   //ROS_INFO(" write HW");
-  //const float gain = 100.;
   float dutyL =  joint_effort_command_[0];
   float dutyR =  joint_effort_command_[1];
   //ROS_INFO(" write HW %f %f %f", joint_effort_command_[0], dutyL, dutyR);
@@ -217,10 +196,39 @@ void RosMipHardwareInterface::write() {
   
 }
 
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
 void RosMipHardwareInterface::DSMCallback(void) {
+  //std::cerr << "in RosMipHardwareInterface::DSMCallback" << std::endl;
+
+  
 }
 
+/*******************************************************************************
+ *
+ *
+ *******************************************************************************/
+void RosMipHardwareInterface::IMUCallback(void) {
 
+  // Called by rc IMU thread
+  // imu_orientation is in the order of geometry_msg, ie x, y, z, w
+  // wheras dmp_quat is w, x, y, z
+  imu_orientation_[0] = rc_imu_data_.dmp_quat[1];
+  imu_orientation_[1] = rc_imu_data_.dmp_quat[2];
+  imu_orientation_[2] = rc_imu_data_.dmp_quat[3];
+  imu_orientation_[3] = rc_imu_data_.dmp_quat[0];
+
+  imu_angular_velocity_[0] = rc_imu_data_.gyro[0]/180.*M_PI; // WTF are those units !!!
+  imu_angular_velocity_[1] = rc_imu_data_.gyro[1]/180.*M_PI;
+  imu_angular_velocity_[2] = rc_imu_data_.gyro[2]/180.*M_PI; 
+
+  imu_linear_acceleration_[0] = rc_imu_data_.accel[0];
+  imu_linear_acceleration_[1] = rc_imu_data_.accel[1];
+  imu_linear_acceleration_[2] = rc_imu_data_.accel[2];
+
+}
 
 #include <controller_manager/controller_manager.h>
 
@@ -242,11 +250,14 @@ int main(int argc, char** argv)
   ros::Duration period(DT);
   while (ros::ok() and rc_get_state()!=EXITING)
   {
-    //ROS_INFO("loop");
+    pthread_mutex_lock( &rc_imu_read_mutex );
+    pthread_cond_wait( &rc_imu_read_condition, &rc_imu_read_mutex );
+    pthread_mutex_unlock( &rc_imu_read_mutex );
+    
     hw.read();
     cm.update(ros::Time::now(), period);
     hw.write();
-    period.sleep();
+    //period.sleep();
   }
   hw.shutdown();
   ROS_INFO_STREAM_NAMED(__NAME, "ROSMIP Hardware node exiting...");

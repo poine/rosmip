@@ -24,6 +24,7 @@
 #include "rosmip_control/rosmip_hardware_interface.h"
 #include "rosmip_control/state_estimation.h"
 #include "rosmip_control/tipping_monitor.h"
+#include "rosmip_control/input_manager.h"
 
 namespace rosmip_controller {
 
@@ -54,12 +55,7 @@ namespace rosmip_controller {
     std::shared_ptr<realtime_tools::RealtimePublisher<rosmip_control::debug> > debug_pub_;
     std::shared_ptr<realtime_tools::RealtimePublisher<tf::tfMessage> > tf_odom_pub_;
 
-    /// State estimation
-    tf::Quaternion q_imu_to_base_;   // constant
-    tf::Quaternion q_odom_to_imu_;   // provided by DMP's AHRS
-    tf::Quaternion q_odom_to_base_;  // combination of the above two
-
-    ///
+    /// Control Law
     struct setpoint_t {
       //	arm_state_t arm_state;	  // see arm_state_t declaration
       //	drive_mode_t drive_mode;  // NOVICE or ADVANCED
@@ -89,6 +85,7 @@ namespace rosmip_controller {
 
     StateEstimator state_est_;
     TippingMonitor tip_mon_;
+    InputManager   inp_mng_;
     // we keep a pointer on it for non standard stuff like radio control and motors on/off
     RosMipHardwareInterface* hw_;
 

@@ -29,6 +29,7 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
   void switch_motors_off() { rc_disable_motors(); }
 
   void DSMCallback(void);
+  void IMUCallback(void);
   
  private:
 
