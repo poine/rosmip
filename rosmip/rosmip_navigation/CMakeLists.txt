@@ -8,8 +8,8 @@ project(rosmip_navigation)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  move_base
-  rosmip_control
+#  move_base
+#  rosmip_control
 )
 
 ## System dependencies are found with CMake's conventions

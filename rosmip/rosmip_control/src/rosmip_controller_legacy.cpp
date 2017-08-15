@@ -191,7 +191,7 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
     right_wheel_joint_.setCommand(core_state_.dutyR);
 #endif
     publishOdometry(now);
-    //publishDebug(now);
+    publishDebug(now);
     
 }
 
