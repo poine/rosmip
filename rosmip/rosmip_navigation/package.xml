@@ -40,9 +40,9 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>move_base</build_depend>
+<!--  <build_depend>move_base</build_depend> -->
   <build_depend>rosmip_control</build_depend>
-  <run_depend>move_base</run_depend>
+<!--  <run_depend>move_base</run_depend>-->
   <run_depend>rosmip_control</run_depend>
 
 
