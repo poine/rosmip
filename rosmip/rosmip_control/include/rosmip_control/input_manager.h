@@ -15,7 +15,7 @@ namespace rosmip_controller {
   public:
     InputManager();
     bool init(hardware_interface::RobotHW* hw, ros::NodeHandle &controller_nh);
-    void update();
+    void update(const ros::Time& now);
    
     struct Commands
     {
@@ -26,10 +26,13 @@ namespace rosmip_controller {
       Commands() : lin(0.0), ang(0.0), stamp(0.0) {}
     };
     realtime_tools::RealtimeBuffer<Commands> command_;
-    Commands command_struct_;
+    Commands nrt_ros_command_struct_;
     ros::Subscriber sub_command_;
 
     hardware_interface::DsmHandle dsm_;
+
+    Commands rt_commands_;
+    
  private:
    void cmdVelCallback(const geometry_msgs::Twist& command);
    

@@ -1,8 +1,8 @@
 #include <cmath>
 #include <rosmip_control/rosmip_legacy_controller.h>
 
-
-
+//#define SEND_ODOM_TO_IMU
+//#define DISABLE_MOTORS
 namespace rosmip_controller {
 
   double get_pitch(const tf::Quaternion& q) { return -asin(2.*q.x()*q.z()-2*q.w()*q.y()); } //  -asin(2.*x*z - 2.*w*y)
@@ -112,7 +112,11 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     inp_mng_.init(hw, controller_nh);
     
     debug_pub_.reset(new realtime_tools::RealtimePublisher<rosmip_control::debug>(controller_nh, "debug", 100));
+#ifdef SEND_ODOM_TO_IMU
+    const std::string base_frame_id_ = "imu_link";
+#else
     const std::string base_frame_id_ = "base_link";
+#endif
     const std::string odom_frame_id_ = "odom";
     tf_odom_pub_.reset(new realtime_tools::RealtimePublisher<tf::tfMessage>(root_nh, "/tf", 100));
     tf_odom_pub_->msg_.transforms.resize(1);
@@ -160,24 +164,9 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
       ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::update... switching motors off");
     }
 
-    //ROS_INFO(" __DSM %d %d", hw_->dsm_ok(), *dsm_.getOk()); 
- #if 1   
-    if (*(inp_mng_.dsm_).getOk()) {
-      setpoint_.phi_dot   = DRIVE_RATE_ADVANCED * *(inp_mng_.dsm_).getDriveStick();
-      setpoint_.gamma_dot = TURN_RATE_ADVANCED  * *(inp_mng_.dsm_).getTurnStick();
-      //ROS_INFO("dsm ok");
-    }
-    else {
-      //ROS_INFO("dsm ko");
-      setpoint_.phi_dot = 0.;
-      setpoint_.gamma_dot = 0.;
-    }
-#endif
-    
-    // Retreive current velocity command and time step:
-    InputManager::Commands curr_cmd = *(inp_mng_.command_.readFromRT());
-    //const double dt = (time - curr_cmd.stamp).toSec();
-    //std::cerr << "cmd " << curr_cmd.lin << " " << curr_cmd.ang << std::endl;
+    inp_mng_.update(now);
+    setpoint_.phi_dot = inp_mng_.rt_commands_.lin/WHEEL_RADIUS_M;
+    setpoint_.gamma_dot = inp_mng_.rt_commands_.ang;
     
     
     setpoint_.phi += setpoint_.phi_dot*DT;
@@ -194,9 +183,13 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
     core_state_.dutyL = core_state_.d1_u - core_state_.d3_u;
     core_state_.dutyR = core_state_.d1_u + core_state_.d3_u;
     
+#ifdef DISABLE_MOTORS
+    left_wheel_joint_.setCommand(0);
+    right_wheel_joint_.setCommand(0);
+#else
     left_wheel_joint_.setCommand(core_state_.dutyL);
     right_wheel_joint_.setCommand(core_state_.dutyR);
-
+#endif
     publishOdometry(now);
     //publishDebug(now);
     
@@ -214,10 +207,17 @@ void RosMipLegacyController::publishOdometry(const ros::Time& now) {
       odom_frame.header.stamp = now;
       odom_frame.transform.translation.x = state_est_.x_;
       odom_frame.transform.translation.y = state_est_.y_;
+#ifdef SEND_ODOM_TO_IMU
+      odom_frame.transform.rotation.x = state_est_.q_odom_to_imu_.x();
+      odom_frame.transform.rotation.y = state_est_.q_odom_to_imu_.y();
+      odom_frame.transform.rotation.z = state_est_.q_odom_to_imu_.z();
+      odom_frame.transform.rotation.w = state_est_.q_odom_to_imu_.w();
+#else
       odom_frame.transform.rotation.x = state_est_.q_odom_to_base_.x();
       odom_frame.transform.rotation.y = state_est_.q_odom_to_base_.y();
       odom_frame.transform.rotation.z = state_est_.q_odom_to_base_.z();
       odom_frame.transform.rotation.w = state_est_.q_odom_to_base_.w();
+#endif
       tf_odom_pub_->unlockAndPublish();
     }
 }

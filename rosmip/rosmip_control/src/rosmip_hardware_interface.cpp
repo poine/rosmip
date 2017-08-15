@@ -30,8 +30,10 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 // DSM channel config
 #define DSM_DRIVE_POL			1
 #define DSM_TURN_POL		        1
+#define DSM_MODE_POL		        1
 #define DSM_DRIVE_CH			3
 #define DSM_TURN_CH			2
+#define DSM_MODE_CH                     6
 #define DSM_DEAD_ZONE			0.02
 
 
@@ -46,7 +48,8 @@ void _dsm_callback(void* data) { reinterpret_cast<RosMipHardwareInterface*>(data
 RosMipHardwareInterface::RosMipHardwareInterface():
   dsm_ok_(false),
   turn_stick_(0.),
-  drive_stick_(0.)
+  drive_stick_(0.),
+  mode_switch_(0.)
 {
   ROS_INFO_STREAM_NAMED(__NAME, "in RosMipHardwareInterface::RosMipHardwareInterface...");
 
@@ -80,6 +83,7 @@ RosMipHardwareInterface::RosMipHardwareInterface():
   dsm_data_.ok = &dsm_ok_;
   dsm_data_.drive_stick = &drive_stick_;
   dsm_data_.turn_stick = &turn_stick_;
+  dsm_data_.mode_switch = &mode_switch_;
   hardware_interface::DsmHandle dsm_handle(dsm_data_);
   dsm_interface_.registerHandle(dsm_handle);
   registerInterface(&dsm_interface_);
@@ -119,7 +123,8 @@ bool RosMipHardwareInterface::start() {
   // ORIENTATION_Y_DOWN
   // ORIENTATION_X_FORWARD
   // ORIENTATION_X_BACK
-  imu_config.orientation = ORIENTATION_Y_UP; // WTF!!! Not sure what that means...
+  //imu_config.orientation = ORIENTATION_Y_UP; // WTF!!! Not sure what that means...
+  imu_config.orientation = ORIENTATION_Z_UP;
   if(rc_initialize_imu_dmp(&rc_imu_data_, imu_config)){
     ROS_ERROR("in RosMipHardwareInterface::start: can't talk to IMU, all hope is lost\n");
     //rc_blink_led(RED, 5, 5);
@@ -169,6 +174,7 @@ void RosMipHardwareInterface::read() {
   if(rc_is_new_dsm_data()){
     turn_stick_  = rc_get_dsm_ch_normalized(DSM_TURN_CH) * DSM_TURN_POL;
     drive_stick_ = rc_get_dsm_ch_normalized(DSM_DRIVE_CH)* DSM_DRIVE_POL;
+    mode_switch_ = rc_get_dsm_ch_normalized(DSM_MODE_CH) * DSM_MODE_POL;
     if(fabs(drive_stick_)<DSM_DEAD_ZONE) drive_stick_ = 0.0;
     if(fabs(turn_stick_)<DSM_DEAD_ZONE)  turn_stick_  = 0.0;
     dsm_ok_ = true;

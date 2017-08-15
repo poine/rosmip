@@ -3,6 +3,13 @@
 
 namespace rosmip_controller {
 
+  double get_yaw(const tf::Quaternion& q) {
+    // atan2(2(qx qy+qw qz), 1 - 2 (qy^2+qz^2))
+    return atan2(2.0*(q.x()*q.y() + q.w()*q.z()),
+		 1.-2*(q.y()*q.y()+q.z()*q.z()));
+  }
+
+  
   StateEstimator::StateEstimator():
     wheel_separation_(0.04),
     wheel_radius_(0.03) {
@@ -12,13 +19,10 @@ namespace rosmip_controller {
   }
 
   void  StateEstimator::init() {
-    q_imu_to_base_.setRPY(0, 0, -M_PI/2); // this is not correct
-                                          // this should be fetched from the robot description
-                                          // and in theory this should be (math.pi/2, 0, math.pi/2)
-                                          // with the current configuration
-                                          // so, there is something fishy with the ORIENTATION_Y_BLAH in hardware interface
-    //q_imu_to_base_.setRPY(M_PI/2, 0, M_PI/2);
-    
+    tf::Quaternion q_base_to_imu;
+    q_base_to_imu.setRPY(M_PI/2, 0, M_PI/2);
+    q_imu_to_base_ = q_base_to_imu.inverse();
+    std::cerr << " imu_to_base " << q_imu_to_base_.x() << " " << q_imu_to_base_.y() << " " << q_imu_to_base_.z() << " " << q_imu_to_base_.w() << std::endl;
   }
 
   
@@ -38,12 +42,16 @@ namespace rosmip_controller {
     q_odom_to_imu_ = tf::Quaternion(odom_to_imu_q[0], odom_to_imu_q[1], odom_to_imu_q[2], odom_to_imu_q[3]); // x, y, z, w
     q_odom_to_base_ =  q_odom_to_imu_ * q_imu_to_base_;
 
+    double inertial_heading =  get_yaw(q_odom_to_base_);
+    //std::cerr << "inertial yaw " << inertial_heading << "odom yaw " << heading_ << std::endl;
+    heading_ = inertial_heading;
 
+    
     /// Get current wheel joint positions:
     const double left_wheel_cur_pos  = left_pos  * wheel_radius_;
     const double right_wheel_cur_pos = right_pos * wheel_radius_;
 
-    const double dt = (time - timestamp_).toSec();
+    //const double dt = (time - timestamp_).toSec();
     timestamp_ = time;
     /// Estimate velocity of wheels using old and current position:
     const double left_wheel_est_vel  = left_wheel_cur_pos  - left_wheel_old_pos_;

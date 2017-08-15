@@ -48,7 +48,7 @@ namespace rosmip_controller {
     hardware_interface::JointHandle left_wheel_joint_;
     hardware_interface::JointHandle right_wheel_joint_;
     hardware_interface::ImuSensorHandle imu_;
-    hardware_interface::DsmHandle dsm_;
+    //hardware_interface::DsmHandle dsm_;
  
     /// Publishers
     bool enable_odom_tf_;

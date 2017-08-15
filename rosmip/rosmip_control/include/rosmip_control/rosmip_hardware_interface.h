@@ -46,7 +46,7 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
   // DSM
   hardware_interface::DsmHandle::Data dsm_data_;
   bool dsm_ok_;
-  float turn_stick_, drive_stick_;
+  float turn_stick_, drive_stick_, mode_switch_;
 
   
   hardware_interface::JointStateInterface    js_interface_;

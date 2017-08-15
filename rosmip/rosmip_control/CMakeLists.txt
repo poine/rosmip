@@ -131,11 +131,11 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(rosmip_controller
-  src/rosmip_controller.cpp
-  src/state_estimation.cpp
-  src/tipping_monitor.cpp
-)
+#add_library(rosmip_controller
+#  src/rosmip_controller.cpp
+#  src/state_estimation.cpp
+#  src/tipping_monitor.cpp
+#)
 
 add_library(rosmip_controller_legacy
   src/rosmip_controller_legacy.cpp
@@ -172,9 +172,9 @@ add_executable(rosmip_hardware_interface_node
 
 ## Specify libraries to link a library or executable target against
 
-target_link_libraries(rosmip_controller
-  ${catkin_LIBRARIES} roboticscape 
-)
+#target_link_libraries(rosmip_controller
+#  ${catkin_LIBRARIES} roboticscape 
+#)
 
 target_link_libraries(rosmip_controller_legacy
   ${catkin_LIBRARIES} roboticscape 
