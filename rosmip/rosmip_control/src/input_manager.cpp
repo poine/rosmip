@@ -39,6 +39,8 @@ namespace rosmip_controller {
 	rt_commands_.lin = 0.;
 	rt_commands_.ang = 0.;
       }
+      //else
+      //	std::cerr << "ros cmd" << std::endl;
     }
     
   }

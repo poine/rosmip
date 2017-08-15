@@ -11,6 +11,7 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/imu_sensor_interface.h>
 
+#include <rosmip_control/dsm_interface.h>
 #include <tf/LinearMath/Quaternion.h>
 
 namespace rosmip_hardware_gazebo {
@@ -55,11 +56,17 @@ namespace rosmip_hardware_gazebo {
     double imu_orientation_[4]; // world_to_base
     double imu_angular_velocity_[3];
     double imu_linear_acceleration_[3];
-    
+    // DSM
+    hardware_interface::DsmHandle::Data dsm_data_;
+    bool dsm_ok_;
+    float turn_stick_, drive_stick_, mode_switch_;
+
+  
     hardware_interface::JointStateInterface    js_interface_;
     hardware_interface::EffortJointInterface   ej_interface_;
     hardware_interface::ImuSensorInterface     imu_sensor_interface_;
-
+    hardware_interface::DsmInterface           dsm_interface_;
+ 
     // 
     tf::Quaternion q_base_to_imu_;   // constant
     //

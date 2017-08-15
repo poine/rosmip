@@ -7,17 +7,17 @@
   <xacro:property name="chassis_length" value="0.04" /> <!-- 0.005-->
   <xacro:property name="chassis_width"  value="0.065" />
   <xacro:property name="chassis_height" value="0.12" />
-  <xacro:property name="chassis_mass"   value="0.2" />
-  <xacro:property name="chassis_vert_offset" value="0.1" /> <!-- 0.1-->
+  <xacro:property name="chassis_mass"   value="0.18" />
+  <xacro:property name="chassis_vert_offset" value="0.085" /> <!-- 0.1-->
 
-  <xacro:property name="wheel_radius" value="0.045" />
+  <xacro:property name="wheel_radius" value="0.03" />
   <xacro:property name="wheel_width"  value="0.01" />
   <xacro:property name="wheel_track"  value="0.08" />
-  <xacro:property name="wheel_mass"   value="0.02" />
+  <xacro:property name="wheel_mass"   value="0.01" />
   <!--<xacro:property name="wheel_joint_damping" value="0.2" />
   <xacro:property name="wheel_joint_friction" value="0.7" /> -->
   <xacro:property name="wheel_joint_damping" value="0.01" />
-  <xacro:property name="wheel_joint_friction" value="0.0" />
+  <xacro:property name="wheel_joint_friction" value="0.01" />
   
   <material name="light_grey"><color rgba="0.4 0.4 0.4 1.0" /></material>
   <material name="yellow"><color rgba="0.8 0.8 0.0 1.0" /></material>
@@ -40,7 +40,8 @@
 	-->
 	<origin xyz="0 0 0" rpy="0 0 ${lr_reflect*PI/2}"/>
         <geometry>
-	  <mesh filename="package://rosmip_description/meshes/wheel_test.dae"/>
+	   <!--<mesh filename="package://rosmip_description/meshes/wheel_test.dae"/>-->
+	   <mesh filename="package://rosmip_description/meshes/wheel_60.dae"/>
         </geometry>
       </visual>
       <collision>
@@ -66,6 +67,7 @@
       <xacro:insert_block name="joint_pose" />
       <axis xyz="0 1 0" />
       <dynamics damping="${wheel_joint_damping}" friction="${wheel_joint_friction}"/>
+      <limit effort="1" velocity="10"/>
     </joint>
 
     

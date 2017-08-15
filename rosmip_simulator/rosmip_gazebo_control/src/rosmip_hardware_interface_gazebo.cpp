@@ -52,11 +52,21 @@ namespace rosmip_hardware_gazebo {
     hardware_interface::ImuSensorHandle imu_sensor_handle(imu_data_);
     imu_sensor_interface_.registerHandle(imu_sensor_handle);
     registerInterface(&imu_sensor_interface_);
-
+    // register DSM
+    dsm_data_.name = "dsm";
+    dsm_data_.ok = &dsm_ok_;
+    dsm_data_.drive_stick = &drive_stick_;
+    dsm_data_.turn_stick = &turn_stick_;
+    dsm_data_.mode_switch = &mode_switch_;
+    hardware_interface::DsmHandle dsm_handle(dsm_data_);
+    dsm_interface_.registerHandle(dsm_handle);
+    registerInterface(&dsm_interface_);
+    
+    
     // TODO read that from urdf
-    tf::Quaternion q_imu_to_base;
-    q_imu_to_base.setRPY(0, 0, -M_PI/2);
-    q_base_to_imu_ = q_imu_to_base.inverse();
+    //tf::Quaternion q_imu_to_base;
+    q_base_to_imu_.setRPY(M_PI/2, 0, M_PI/2); //q_imu_to_base.setRPY(0, 0, -M_PI/2);
+    //q_base_to_imu_ = q_imu_to_base.inverse();
     
     return true;
   }
@@ -74,6 +84,7 @@ namespace rosmip_hardware_gazebo {
       joint_position_[i] = gz_joints_[i]->GetAngle(0).Radian();
       joint_velocity_[i] = gz_joints_[i]->GetVelocity(0);
     }
+    //std::cerr <<  "read " << joint_position_[0] << " " <<  joint_position_[1] << std::endl;
     //
     tf::Quaternion q_world_to_base = tf::Quaternion(gz_pose_.rot.x, gz_pose_.rot.y, gz_pose_.rot.z, gz_pose_.rot.w); // x, y, z, w
     tf::Quaternion q_world_to_imu = q_world_to_base * q_base_to_imu_;
@@ -86,7 +97,7 @@ namespace rosmip_hardware_gazebo {
     
     tf::Vector3 rvel_world(gz_angular_velocity_.x, gz_angular_velocity_.y, gz_angular_velocity_.z);
     tf::Vector3 rvel_imu = tf::quatRotate(q_world_to_imu, rvel_world);
-    imu_angular_velocity_[0] = -rvel_imu.x(); // WTF!!!
+    imu_angular_velocity_[0] = rvel_imu.x();
     imu_angular_velocity_[1] = rvel_imu.y();
     imu_angular_velocity_[2] = rvel_imu.z(); 
     
@@ -96,6 +107,7 @@ namespace rosmip_hardware_gazebo {
     for (int i=0; i<NB_JOINTS; i++) {
       gz_joints_[i]->SetForce(0, joint_effort_command_[i]);
     }
+    //std::cerr <<  "write " << joint_effort_command_[0] << " " <<  joint_effort_command_[1] << std::endl;
   }
 
   void RosMipHardwareInterface::switch_motors_on()  {

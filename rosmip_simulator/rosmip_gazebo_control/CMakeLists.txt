@@ -8,6 +8,7 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   gazebo_ros_control
+  rosmip_control
 )
 
 ## System dependencies are found with CMake's conventions

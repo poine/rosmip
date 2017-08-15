@@ -1,4 +1,7 @@
 #include <cmath>
+#include <boost/assign.hpp>
+#include <tf/transform_datatypes.h>
+
 #include <rosmip_control/rosmip_legacy_controller.h>
 
 //#define SEND_ODOM_TO_IMU
@@ -14,7 +17,8 @@ namespace rosmip_controller {
 
   
 #define __NAME "rosmip_balance_controller"
-#define CAPE_MOUNT_ANGLE		-0.2
+#define CAPE_MOUNT_ANGLE		0.
+  //-0.2
 #define ENCODER_CHANNEL_L		1
 #define ENCODER_CHANNEL_R		2
 #define WHEEL_RADIUS_M			0.03
@@ -124,7 +128,33 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     tf_odom_pub_->msg_.transforms[0].child_frame_id = base_frame_id_;
     tf_odom_pub_->msg_.transforms[0].header.frame_id = odom_frame_id_;
 
-
+    //
+    double pose_cov_list[6] = {1, 1, 1, 1, 1, 1};
+    double twist_cov_list[6] = {1, 1, 1, 1, 1, 1};
+    
+    odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(controller_nh, "odom", 100));
+    odom_pub_->msg_.header.frame_id = odom_frame_id_;
+    odom_pub_->msg_.child_frame_id = base_frame_id_;
+    odom_pub_->msg_.pose.pose.position.z = 0;
+    odom_pub_->msg_.pose.covariance = boost::assign::list_of
+      (static_cast<double>(pose_cov_list[0])) (0)  (0)  (0)  (0)  (0)
+      (0)  (static_cast<double>(pose_cov_list[1])) (0)  (0)  (0)  (0)
+      (0)  (0)  (static_cast<double>(pose_cov_list[2])) (0)  (0)  (0)
+      (0)  (0)  (0)  (static_cast<double>(pose_cov_list[3])) (0)  (0)
+      (0)  (0)  (0)  (0)  (static_cast<double>(pose_cov_list[4])) (0)
+      (0)  (0)  (0)  (0)  (0)  (static_cast<double>(pose_cov_list[5]));
+    odom_pub_->msg_.twist.twist.linear.y  = 0;
+    odom_pub_->msg_.twist.twist.linear.z  = 0;
+    odom_pub_->msg_.twist.twist.angular.x = 0;
+    odom_pub_->msg_.twist.twist.angular.y = 0;
+    odom_pub_->msg_.twist.covariance = boost::assign::list_of
+      (static_cast<double>(twist_cov_list[0])) (0)  (0)  (0)  (0)  (0)
+      (0)  (static_cast<double>(twist_cov_list[1])) (0)  (0)  (0)  (0)
+      (0)  (0)  (static_cast<double>(twist_cov_list[2])) (0)  (0)  (0)
+      (0)  (0)  (0)  (static_cast<double>(twist_cov_list[3])) (0)  (0)
+      (0)  (0)  (0)  (0)  (static_cast<double>(twist_cov_list[4])) (0)
+      (0)  (0)  (0)  (0)  (0)  (static_cast<double>(twist_cov_list[5]));
+    
  
     ROS_INFO_STREAM_NAMED(__NAME, "leaving RosMipLegacyController::init...");
     return true;
@@ -191,7 +221,7 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
     right_wheel_joint_.setCommand(core_state_.dutyR);
 #endif
     publishOdometry(now);
-    //publishDebug(now);
+    publishDebug(now);
     
 }
 
@@ -220,6 +250,23 @@ void RosMipLegacyController::publishOdometry(const ros::Time& now) {
 #endif
       tf_odom_pub_->unlockAndPublish();
     }
+
+  const geometry_msgs::Quaternion orientation(
+	tf::createQuaternionMsgFromYaw(state_est_.heading_));
+ 
+  if (odom_pub_->trylock())
+    {
+      odom_pub_->msg_.header.stamp = now;
+      odom_pub_->msg_.pose.pose.position.x = state_est_.x_;
+      odom_pub_->msg_.pose.pose.position.y = state_est_.y_;
+      odom_pub_->msg_.pose.pose.orientation = orientation;
+      odom_pub_->msg_.twist.twist.linear.x  = state_est_.linear_;
+      odom_pub_->msg_.twist.twist.angular.z = state_est_.angular_;
+      odom_pub_->unlockAndPublish();
+    }
+
+
+  
 }
 
 /*******************************************************************************

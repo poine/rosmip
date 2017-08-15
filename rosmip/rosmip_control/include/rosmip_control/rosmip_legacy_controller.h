@@ -13,7 +13,7 @@
 
 #include <pluginlib/class_list_macros.h>
 
-//#include <geometry_msgs/TwistStamped.h>
+#include <geometry_msgs/TwistStamped.h>
 #include <rosmip_control/debug.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/tfMessage.h>
@@ -53,6 +53,7 @@ namespace rosmip_controller {
     /// Publishers
     bool enable_odom_tf_;
     std::shared_ptr<realtime_tools::RealtimePublisher<rosmip_control::debug> > debug_pub_;
+    std::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::Odometry> > odom_pub_;
     std::shared_ptr<realtime_tools::RealtimePublisher<tf::tfMessage> > tf_odom_pub_;
 
     /// Control Law
