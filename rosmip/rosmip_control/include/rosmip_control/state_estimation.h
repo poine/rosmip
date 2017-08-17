@@ -9,7 +9,7 @@ namespace rosmip_controller {
   class StateEstimator {
 
   public:
-    StateEstimator();
+    StateEstimator(double wheel_r, double wheel_sep);
 
     void init();
     void starting(const ros::Time& time);
@@ -18,7 +18,7 @@ namespace rosmip_controller {
     /// Current timestamp:
     ros::Time timestamp_;
     /// Current pose:
-    double x_, y_, heading_;         // m, m, rad
+    double x_, y_, yaw_, pitch_;         // m, m, rad, rad
     /// Current velocity:
     double linear_,  angular_;       // m/s, rad/s
     /// Orientation
@@ -26,13 +26,16 @@ namespace rosmip_controller {
     tf::Quaternion q_odom_to_imu_;   // provided by DMP's AHRS
     tf::Quaternion q_odom_to_base_;  // combination of the above two
 
+    double left_wheel_phi, right_wheel_phi;
+    double odom_yaw_, inertial_yaw_;
+      
   private:
     /// Previou wheel position/state [rad]:
     double left_wheel_old_pos_,  right_wheel_old_pos_;
 
     /// Wheel kinematic parameters [m]:
-    double wheel_separation_;
     double wheel_radius_;
+    double wheel_separation_;
 
     void integrate(double linear, double angular);
     

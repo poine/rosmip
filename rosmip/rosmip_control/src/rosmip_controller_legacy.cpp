@@ -4,11 +4,10 @@
 
 #include <rosmip_control/rosmip_legacy_controller.h>
 
-//#define SEND_ODOM_TO_IMU
 //#define DISABLE_MOTORS
 namespace rosmip_controller {
 
-  double get_pitch(const tf::Quaternion& q) { return -asin(2.*q.x()*q.z()-2*q.w()*q.y()); } //  -asin(2.*x*z - 2.*w*y)
+ 
   double saturate(double _v, double _min, double _max) {
     if (_v < _min) return _min;
     if (_v > _max) return _max;
@@ -17,12 +16,12 @@ namespace rosmip_controller {
 
   
 #define __NAME "rosmip_balance_controller"
-#define CAPE_MOUNT_ANGLE		0.
-  //-0.2
-#define ENCODER_CHANNEL_L		1
-#define ENCODER_CHANNEL_R		2
-#define WHEEL_RADIUS_M			0.03
-#define TRACK_WIDTH_M			0.0415
+#define THETA_0	          -0.2
+#define ENCODER_CHANNEL_L  1
+#define ENCODER_CHANNEL_R  2
+#define WHEEL_RADIUS_M     0.03
+  //#define WHEEL_TRACK_M      0.0415
+#define WHEEL_TRACK_M      0.083
 #define SOFT_START_SEC     0.7
 #define DT                 0.01
 // inner loop controller 100hz
@@ -30,7 +29,6 @@ namespace rosmip_controller {
 #define D1_ORDER           2
 #define D1_NUM             {-4.945, 8.862, -3.967}
 #define D1_DEN             { 1.000, -1.481, 0.4812}
-
 // outer loop controller new 100hz
 #define D2_GAIN            0.9
 #define	D2_ORDER           2
@@ -43,15 +41,14 @@ namespace rosmip_controller {
 #define D3_KD              0.05
 #define STEERING_INPUT_MAX 0.5
 
-#define DRIVE_RATE_ADVANCED		26
-#define TURN_RATE_ADVANCED		10
   
 /*******************************************************************************
  *
  *
  *******************************************************************************/
 RosMipLegacyController::RosMipLegacyController():
-    enable_odom_tf_(true)
+  enable_odom_tf_(true),
+  state_est_(WHEEL_RADIUS_M, WHEEL_TRACK_M)
   {
     ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::RosMipLegacyController...");
 
@@ -116,11 +113,7 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     inp_mng_.init(hw, controller_nh);
     
     debug_pub_.reset(new realtime_tools::RealtimePublisher<rosmip_control::debug>(controller_nh, "debug", 100));
-#ifdef SEND_ODOM_TO_IMU
-    const std::string base_frame_id_ = "imu_link";
-#else
     const std::string base_frame_id_ = "base_link";
-#endif
     const std::string odom_frame_id_ = "odom";
     tf_odom_pub_.reset(new realtime_tools::RealtimePublisher<tf::tfMessage>(root_nh, "/tf", 100));
     tf_odom_pub_->msg_.transforms.resize(1);
@@ -177,11 +170,11 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
   // state estimation
   state_est_.update(imu_.getOrientation(), left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition(), now);
 
-  core_state_.theta = get_pitch(state_est_.q_odom_to_base_) + CAPE_MOUNT_ANGLE;;
+  core_state_.theta = state_est_.pitch_ + THETA_0;
   core_state_.wheelAngleL = left_wheel_joint_.getPosition();
   core_state_.wheelAngleR = right_wheel_joint_.getPosition();
   core_state_.phi = ((core_state_.wheelAngleL+core_state_.wheelAngleR)/2) + core_state_.theta;
-  core_state_.gamma = (core_state_.wheelAngleR-core_state_.wheelAngleL) * (WHEEL_RADIUS_M/TRACK_WIDTH_M);
+  core_state_.gamma = (core_state_.wheelAngleR-core_state_.wheelAngleL) * (WHEEL_RADIUS_M/WHEEL_TRACK_M);
   tip_mon_.update(core_state_.theta);
  
     if (tip_mon_.prev_status_ == TIPPED and tip_mon_.status_ == UPRIGHT) {
@@ -237,22 +230,15 @@ void RosMipLegacyController::publishOdometry(const ros::Time& now) {
       odom_frame.header.stamp = now;
       odom_frame.transform.translation.x = state_est_.x_;
       odom_frame.transform.translation.y = state_est_.y_;
-#ifdef SEND_ODOM_TO_IMU
-      odom_frame.transform.rotation.x = state_est_.q_odom_to_imu_.x();
-      odom_frame.transform.rotation.y = state_est_.q_odom_to_imu_.y();
-      odom_frame.transform.rotation.z = state_est_.q_odom_to_imu_.z();
-      odom_frame.transform.rotation.w = state_est_.q_odom_to_imu_.w();
-#else
       odom_frame.transform.rotation.x = state_est_.q_odom_to_base_.x();
       odom_frame.transform.rotation.y = state_est_.q_odom_to_base_.y();
       odom_frame.transform.rotation.z = state_est_.q_odom_to_base_.z();
       odom_frame.transform.rotation.w = state_est_.q_odom_to_base_.w();
-#endif
       tf_odom_pub_->unlockAndPublish();
     }
 
   const geometry_msgs::Quaternion orientation(
-	tf::createQuaternionMsgFromYaw(state_est_.heading_));
+	tf::createQuaternionMsgFromYaw(state_est_.yaw_));
  
   if (odom_pub_->trylock())
     {
@@ -276,12 +262,14 @@ void RosMipLegacyController::publishOdometry(const ros::Time& now) {
 void RosMipLegacyController::publishDebug(const ros::Time& now) {
   if (debug_pub_->trylock()) {
     //debug_pub_->msg_.header.stamp = now;
+    debug_pub_->msg_.gamma = core_state_.gamma;
     debug_pub_->msg_.theta = core_state_.theta;
     //debug_pub_->msg_.thetad = thetad;
     debug_pub_->msg_.phiL = core_state_.wheelAngleL;
     debug_pub_->msg_.phiR = core_state_.wheelAngleR;
     //debug_pub_->msg_.phidL = phidL;
     //debug_pub_->msg_.phidR = phidR;
+    debug_pub_->msg_.gamma_sp = setpoint_.gamma;
     debug_pub_->msg_.theta_sp = setpoint_.theta;
     debug_pub_->msg_.phiL_sp = setpoint_.phi;
     debug_pub_->msg_.phiR_sp = setpoint_.gamma;
