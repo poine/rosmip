@@ -1,6 +1,8 @@
 
 #include "rosmip_control/state_estimation.h"
 
+#include <tf/LinearMath/Transform.h>
+
 namespace rosmip_controller {
 
   double get_yaw(const tf::Quaternion& q) {
@@ -13,10 +15,13 @@ namespace rosmip_controller {
     return -asin(2.*q.x()*q.z()-2*q.w()*q.y());
   } 
   
-  StateEstimator::StateEstimator(double wheel_r, double wheel_sep):
-    wheel_radius_(wheel_r) ,
-    wheel_separation_(wheel_sep) {
-  }
+  StateEstimator::StateEstimator(double wheel_r, double wheel_sep, size_t velocity_rolling_window_size):
+      wheel_radius_(wheel_r)
+    , wheel_separation_(wheel_sep)
+    , velocity_rolling_window_size_(velocity_rolling_window_size)
+    , linear_acc_(RollingWindow::window_size = velocity_rolling_window_size)
+    , angular_acc_(RollingWindow::window_size = velocity_rolling_window_size)
+  {}
 
   void  StateEstimator::init() {
     tf::Quaternion q_base_to_imu;
@@ -25,35 +30,33 @@ namespace rosmip_controller {
   }
 
   
-  void  StateEstimator::starting(const ros::Time& time) {
+  void  StateEstimator::starting(const ros::Time& now, const double* odom_to_imu_q, const double lw_phi, const double rw_phi) {
     x_ = 0.;
     y_ = 0.;
-    yaw_ = 0.;
-    pitch_ = 0.;
-    left_wheel_phi = 0.;
-    right_wheel_phi = 0.;
+    left_wheel_phi = lw_phi;
+    right_wheel_phi = rw_phi;
       
-    left_wheel_old_pos_ = 0.;
-    right_wheel_old_pos_ = 0.;
-    timestamp_ = time;
+    left_wheel_old_pos_ = lw_phi * wheel_radius_;
+    right_wheel_old_pos_ = rw_phi * wheel_radius_;
+    odom_yaw_ = (left_wheel_old_pos_+right_wheel_old_pos_) / wheel_separation_;
+
+    resetAccumulators();
+    timestamp_ = now;
     
   }
   
-  void  StateEstimator::update(const double* odom_to_imu_q, double left_wheel_phi, double right_wheel_phi, const ros::Time &time) {
+  void  StateEstimator::update(const ros::Time &now, const double* odom_to_imu_q, const double lw_phi, const double rw_phi) {
 
     q_odom_to_imu_ = tf::Quaternion(odom_to_imu_q[0], odom_to_imu_q[1], odom_to_imu_q[2], odom_to_imu_q[3]); // x, y, z, w
     q_odom_to_base_ =  q_odom_to_imu_ * q_imu_to_base_;
-
-    inertial_yaw_ =  get_yaw(q_odom_to_base_);
-    pitch_ = get_pitch(q_odom_to_base_);
-    yaw_ = inertial_yaw_; // we need to use odom yaw too...
+    tf::Matrix3x3(q_odom_to_base_).getRPY( inertial_roll_, inertial_pitch_, inertial_yaw_ );
+    //inertial_yaw_ =  get_yaw(q_odom_to_base_);
+    //pitch_ = get_pitch(q_odom_to_base_);
     
     /// Get current wheel joint positions:
-    const double left_wheel_cur_pos  = left_wheel_phi  * wheel_radius_;
-    const double right_wheel_cur_pos = right_wheel_phi * wheel_radius_;
+    const double left_wheel_cur_pos  = lw_phi * wheel_radius_;
+    const double right_wheel_cur_pos = rw_phi * wheel_radius_;
 
-    //const double dt = (time - timestamp_).toSec();
-    timestamp_ = time;
     /// Estimate velocity of wheels using old and current position:
     const double left_wheel_est_vel  = left_wheel_cur_pos  - left_wheel_old_pos_;
     const double right_wheel_est_vel = right_wheel_cur_pos - right_wheel_old_pos_;
@@ -68,25 +71,38 @@ namespace rosmip_controller {
 
     /// Integrate odometry:
     integrate(linear, angular);
+
+    const double dt = (now - timestamp_).toSec();
+    if (dt < 0.0001)
+      return; // Interval too small to differentiate
+    
+    timestamp_ = now;
+    /// Estimate speeds using a rolling mean to filter them out:
+    linear_acc_(linear/dt);
+    angular_acc_(angular/dt);
+
+    linear_ = bacc::rolling_mean(linear_acc_);
+    angular_ = bacc::rolling_mean(angular_acc_);
+
     
   }
 
-
+  void StateEstimator::resetAccumulators() {
+  }
+  
   void StateEstimator::integrate(double linear, double angular) {
-    if (fabs(angular) < 1e-6) {
+    if (fabs(angular) < 1e-6) {  /// Runge-Kutta 2nd order integration:
        const double direction = odom_yaw_ + angular * 0.5;
-       /// Runge-Kutta 2nd order integration:
        x_       += linear * cos(direction);
        y_       += linear * sin(direction);
        odom_yaw_ += angular;
     }
-    else {
-      /// Exact integration (should solve problems when angular is zero):
+    else {                       /// Exact integration (should solve problems when angular is zero):
       const double yaw_old = odom_yaw_;
       const double r = linear/angular;
       odom_yaw_ += angular;
-      x_       +=  r * (sin(odom_yaw_) - sin(yaw_old));
-      y_       += -r * (cos(odom_yaw_) - cos(yaw_old));
+      x_        +=  r * (sin(odom_yaw_) - sin(yaw_old));
+      y_        += -r * (cos(odom_yaw_) - cos(yaw_old));
     }
   }
   

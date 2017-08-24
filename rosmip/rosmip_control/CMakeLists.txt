@@ -59,7 +59,6 @@ add_message_files(
   DIRECTORY msg
   FILES
   debug.msg
-#   Message2.msg
 )
 
 ## Generate services in the 'srv' folder

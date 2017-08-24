@@ -12,13 +12,14 @@
 
   <xacro:property name="wheel_radius" value="0.03" />
   <xacro:property name="wheel_width"  value="0.01" />
-  <xacro:property name="wheel_track"  value="0.08" />
+  <xacro:property name="wheel_track"  value="0.083" />
   <xacro:property name="wheel_mass"   value="0.01" />
-  <!--<xacro:property name="wheel_joint_damping" value="0.2" />
-  <xacro:property name="wheel_joint_friction" value="0.7" /> -->
   <xacro:property name="wheel_joint_damping" value="0.01" />
   <xacro:property name="wheel_joint_friction" value="0.01" />
-  
+
+  <!-- appearance -->
+  <xacro:property name="high_definition_wheel_visual" value="true" />
+  <xacro:property name="high_definition_body_visual" value="false" />
   <material name="light_grey"><color rgba="0.4 0.4 0.4 1.0" /></material>
   <material name="yellow"><color rgba="0.8 0.8 0.0 1.0" /></material>
   <material name="black"><color rgba="0.15 0.15 0.15 1.0" /></material>
@@ -31,18 +32,20 @@
 
     <link name="${prefix}_wheel_link">
       <visual>
-	<!--
-	<origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
-        <geometry>
-	  <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
-        </geometry>
-        <material name="yellow" />
-	-->
-	<origin xyz="0 0 0" rpy="0 0 ${lr_reflect*PI/2}"/>
-        <geometry>
-	   <!--<mesh filename="package://rosmip_description/meshes/wheel_test.dae"/>-->
-	   <mesh filename="package://rosmip_description/meshes/wheel_60.dae"/>
-        </geometry>
+	<xacro:unless value="${high_definition_wheel_visual}">
+	  <origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
+          <geometry>
+	    <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+          </geometry>
+          <material name="yellow" />
+	</xacro:unless>
+	<xacro:if value="${high_definition_wheel_visual}">
+	  <origin xyz="0 0 0" rpy="0 0 ${lr_reflect*PI/2}"/>
+          <geometry>
+	    <!--<mesh filename="package://rosmip_description/meshes/wheel_test.dae"/>-->
+	    <mesh filename="package://rosmip_description/meshes/wheel_60.dae"/>
+          </geometry>
+	</xacro:if>
       </visual>
       <collision>
         <origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
@@ -57,8 +60,6 @@
 
     <gazebo reference="${prefix}_wheel_link">
       <material>Gazebo/DarkGrey</material>
-      <!--<material>Gazebo/WoodFloor</material>-->
-      <!--<material>Gazebo/WoodPallet</material>-->
     </gazebo>
     
     <joint name="${prefix}_wheel_joint" type="continuous">
@@ -108,8 +109,12 @@
     <visual>
       <origin xyz="0 0 ${chassis_vert_offset}" rpy="0 0 0"/>
       <geometry>
-	<mesh filename="package://rosmip_description/meshes/body_minion.dae"/>
-	<!--<box size="${chassis_length} ${chassis_width} ${chassis_height}"/>-->
+	<xacro:if value="${high_definition_body_visual}">
+	  <mesh filename="package://rosmip_description/meshes/body_minion.dae"/>
+	</xacro:if>
+	<xacro:unless value="${high_definition_body_visual}">
+	  <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+	</xacro:unless>
       </geometry>
       <!--<material name="yellow" />-->
     </visual>

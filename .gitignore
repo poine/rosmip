@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+# Python
+*.pyc
 
 # editor backups
 *~

@@ -20,8 +20,8 @@ namespace rosmip_controller {
 #define ENCODER_CHANNEL_L  1
 #define ENCODER_CHANNEL_R  2
 #define WHEEL_RADIUS_M     0.03
-  //#define WHEEL_TRACK_M      0.0415
-#define WHEEL_TRACK_M      0.083
+#define WHEEL_TRACK_M      (0.083+0.01)
+
 #define SOFT_START_SEC     0.7
 #define DT                 0.01
 // inner loop controller 100hz
@@ -109,7 +109,6 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     //dsm_ = d->getHandle("dsm");
     
     state_est_.init();
-
     inp_mng_.init(hw, controller_nh);
     
     debug_pub_.reset(new realtime_tools::RealtimePublisher<rosmip_control::debug>(controller_nh, "debug", 100));
@@ -157,9 +156,9 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
  *
  *
  *******************************************************************************/
-void RosMipLegacyController::starting(const ros::Time& time) {
+void RosMipLegacyController::starting(const ros::Time& now) {
   ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::starting...");
-  state_est_.starting(time);
+  state_est_.starting(now, imu_.getOrientation(), left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition());
 }
   
 /*******************************************************************************
@@ -168,54 +167,54 @@ void RosMipLegacyController::starting(const ros::Time& time) {
  *******************************************************************************/
 void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& dt) {
   // state estimation
-  state_est_.update(imu_.getOrientation(), left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition(), now);
+  state_est_.update(now, imu_.getOrientation(), left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition());
 
-  core_state_.theta = state_est_.pitch_ + THETA_0;
+  core_state_.theta = state_est_.inertial_pitch_ + THETA_0;
   core_state_.wheelAngleL = left_wheel_joint_.getPosition();
   core_state_.wheelAngleR = right_wheel_joint_.getPosition();
   core_state_.phi = ((core_state_.wheelAngleL+core_state_.wheelAngleR)/2) + core_state_.theta;
   core_state_.gamma = (core_state_.wheelAngleR-core_state_.wheelAngleL) * (WHEEL_RADIUS_M/WHEEL_TRACK_M);
   tip_mon_.update(core_state_.theta);
  
-    if (tip_mon_.prev_status_ == TIPPED and tip_mon_.status_ == UPRIGHT) {
-      resetControlLaw();
-      hw_->switch_motors_on();
-      ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::update... switching motors on");
-    }
-    if (tip_mon_.prev_status_ == UPRIGHT and tip_mon_.status_ == TIPPED) {
-      hw_->switch_motors_off();
-      ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::update... switching motors off");
-    }
+  if (tip_mon_.prev_status_ == TIPPED and tip_mon_.status_ == UPRIGHT) {
+    resetControlLaw();
+    hw_->switch_motors_on();
+    ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::update... switching motors on");
+  }
+  if (tip_mon_.prev_status_ == UPRIGHT and tip_mon_.status_ == TIPPED) {
+    hw_->switch_motors_off();
+    ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::update... switching motors off");
+  }
 
-    inp_mng_.update(now);
-    setpoint_.phi_dot = inp_mng_.rt_commands_.lin/WHEEL_RADIUS_M;
-    setpoint_.gamma_dot = inp_mng_.rt_commands_.ang;
-    
-    
-    setpoint_.phi += setpoint_.phi_dot*DT;
-    core_state_.d2_u = rc_march_filter(&D2_, setpoint_.phi-core_state_.phi);
-    setpoint_.theta = core_state_.d2_u;
-
-    //D1.gain = D1_GAIN * V_NOMINAL/cstate.vBatt;
-    core_state_.d1_u = rc_march_filter(&D1_, (setpoint_.theta-core_state_.theta));
-    
-    //ROS_INFO("  in RosMipLegacyController::update... %f", dt.toSec());
-    setpoint_.gamma += setpoint_.gamma_dot * DT;
-    core_state_.d3_u = rc_march_filter(&D3_, setpoint_.gamma - core_state_.gamma);
-    
-    core_state_.dutyL = core_state_.d1_u - core_state_.d3_u;
-    core_state_.dutyR = core_state_.d1_u + core_state_.d3_u;
-    
+  inp_mng_.update(now);
+  setpoint_.phi_dot = inp_mng_.rt_commands_.lin/WHEEL_RADIUS_M;
+  setpoint_.gamma_dot = inp_mng_.rt_commands_.ang;
+  
+  
+  setpoint_.phi += setpoint_.phi_dot*DT;
+  core_state_.d2_u = rc_march_filter(&D2_, setpoint_.phi-core_state_.phi);
+  setpoint_.theta = core_state_.d2_u;
+  
+  //D1.gain = D1_GAIN * V_NOMINAL/cstate.vBatt;
+  core_state_.d1_u = rc_march_filter(&D1_, (setpoint_.theta-core_state_.theta));
+  
+  //ROS_INFO("  in RosMipLegacyController::update... %f", dt.toSec());
+  setpoint_.gamma += setpoint_.gamma_dot * DT;
+  core_state_.d3_u = rc_march_filter(&D3_, setpoint_.gamma - core_state_.gamma);
+  
+  core_state_.dutyL = core_state_.d1_u - core_state_.d3_u;
+  core_state_.dutyR = core_state_.d1_u + core_state_.d3_u;
+  
 #ifdef DISABLE_MOTORS
-    left_wheel_joint_.setCommand(0);
-    right_wheel_joint_.setCommand(0);
+  left_wheel_joint_.setCommand(0);
+  right_wheel_joint_.setCommand(0);
 #else
-    left_wheel_joint_.setCommand(core_state_.dutyL);
-    right_wheel_joint_.setCommand(core_state_.dutyR);
+  left_wheel_joint_.setCommand(core_state_.dutyL);
+  right_wheel_joint_.setCommand(core_state_.dutyR);
 #endif
-    publishOdometry(now);
-    publishDebug(now);
-    
+  publishOdometry(now);
+  publishDebug(now);
+  
 }
 
 /*******************************************************************************
@@ -224,21 +223,24 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
  *******************************************************************************/
 void RosMipLegacyController::publishOdometry(const ros::Time& now) {
   // Publish tf /odom frame
+  //  const geometry_msgs::Quaternion orientation(
+  //	tf::createQuaternionMsgFromYaw(state_est_.yaw_));
+  const geometry_msgs::Quaternion
+    orientation(tf::createQuaternionMsgFromRollPitchYaw(state_est_.inertial_roll_, state_est_.inertial_pitch_, state_est_.odom_yaw_));
   if (enable_odom_tf_ && tf_odom_pub_->trylock())
     {
       geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
       odom_frame.header.stamp = now;
       odom_frame.transform.translation.x = state_est_.x_;
       odom_frame.transform.translation.y = state_est_.y_;
-      odom_frame.transform.rotation.x = state_est_.q_odom_to_base_.x();
-      odom_frame.transform.rotation.y = state_est_.q_odom_to_base_.y();
-      odom_frame.transform.rotation.z = state_est_.q_odom_to_base_.z();
-      odom_frame.transform.rotation.w = state_est_.q_odom_to_base_.w();
+      //      odom_frame.transform.rotation.x = state_est_.q_odom_to_base_.x();
+      //      odom_frame.transform.rotation.y = state_est_.q_odom_to_base_.y();
+      //      odom_frame.transform.rotation.z = state_est_.q_odom_to_base_.z();
+      //      odom_frame.transform.rotation.w = state_est_.q_odom_to_base_.w();
+      odom_frame.transform.rotation = orientation;
       tf_odom_pub_->unlockAndPublish();
     }
 
-  const geometry_msgs::Quaternion orientation(
-	tf::createQuaternionMsgFromYaw(state_est_.yaw_));
  
   if (odom_pub_->trylock())
     {
