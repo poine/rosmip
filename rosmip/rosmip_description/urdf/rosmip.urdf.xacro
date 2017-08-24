@@ -4,11 +4,11 @@
   <!-- Dimensions -->
   <xacro:property name="PI" value="3.1415926535897931" />
 
-  <xacro:property name="chassis_length" value="0.04" /> <!-- 0.005-->
-  <xacro:property name="chassis_width"  value="0.065" />
+  <xacro:property name="chassis_length" value="0.035" />
+  <xacro:property name="chassis_width"  value="0.062" />
   <xacro:property name="chassis_height" value="0.12" />
   <xacro:property name="chassis_mass"   value="0.18" />
-  <xacro:property name="chassis_vert_offset" value="0.085" /> <!-- 0.1-->
+  <xacro:property name="chassis_vert_offset" value="0.085" />
 
   <xacro:property name="wheel_radius" value="0.03" />
   <xacro:property name="wheel_width"  value="0.01" />
@@ -87,10 +87,10 @@
 
 
   <xacro:wheel prefix="left" lr_reflect="1">
-    <origin xyz="0 ${wheel_track/2} ${wheel_radius+0.0}" rpy="0 0 0" />
+    <origin xyz="0 ${(wheel_track-wheel_width)/2} ${wheel_radius}" rpy="0 0 0" />
   </xacro:wheel>
   <xacro:wheel prefix="right"  lr_reflect="-1">
-    <origin xyz="0 ${-wheel_track/2} ${wheel_radius+0.0}" rpy="0 0 0" />
+    <origin xyz="0 ${-(wheel_track-wheel_width)/2} ${wheel_radius}" rpy="0 0 0" />
   </xacro:wheel>
 
 

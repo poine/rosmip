@@ -20,7 +20,8 @@ namespace rosmip_controller {
 #define ENCODER_CHANNEL_L  1
 #define ENCODER_CHANNEL_R  2
 #define WHEEL_RADIUS_M     0.03
-#define WHEEL_TRACK_M      (0.083+0.01)
+//#define WHEEL_TRACK_M      (0.083+0.01)
+#define WHEEL_TRACK_M      (0.083)
 
 #define SOFT_START_SEC     0.7
 #define DT                 0.01
