@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<!--
+
+Static map rosmip navigation demonstration.
+- rosmip in gazebo
+- map server
+- controllers ( move base, global planner, local planner )
+- rviz
+
+-->
+
+<launch>
+  <arg name="world" default="maze_0"/>
+  
+  <arg name="world_path" value="$(find rosmip_worlds)/worlds/$(arg world).world" />
+  <arg name="map_path"   value="$(find rosmip_worlds)/maps/$(arg world).yaml" />
+  
+  <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch" >
+    <arg name="world_path" value="$(arg world_path)" />
+  </include>
+
+  <include file="$(find rosmip_navigation)/launch/static_map_navigation_demo.launch" >
+    <arg name="map_path" value="$(arg map_path)" />
+  </include> 
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/navigation.rviz" />
+
+</launch>

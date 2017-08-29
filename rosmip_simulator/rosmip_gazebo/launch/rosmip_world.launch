@@ -3,8 +3,11 @@
   <arg name="use_sim_time" default="true" />
   <arg name="gui" default="true" />
   <arg name="headless" default="false" />
-  <arg name="world_name" default="$(find rosmip_gazebo)/worlds/empty.world" />
+  <arg name="world_path" default="$(find rosmip_gazebo)/worlds/empty.world" />
+
   <arg name="config" default="rosmip"/>
+  <arg name="x0" default="0.5"/>
+  <arg name="y0" default="0.5"/>
        
   <!-- Launch Gazebo with the specified world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -12,17 +15,18 @@
     <arg name="gui" value="$(arg gui)" />
     <arg name="use_sim_time" value="$(arg use_sim_time)" />
     <arg name="headless" value="$(arg headless)" />
-    <arg name="world_name" value="$(arg world_name)" />
+    <arg name="world_name" value="$(arg world_path)" />
   </include>
 
-  <!-- Load ROSMip's description, controllers, and teleop nodes. -->
+  <!-- Load ROSMip's description -->
   <include file="$(find rosmip_description)/launch/description.launch">
     <arg name="config" value="$(arg config)" />
   </include>
+  <!-- start balance controller -->
   <include file="$(find rosmip_control)/launch/control_balance.launch" />
 
   <!-- Spawn ROSMip -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
-	args="-urdf -model rosmip -param robot_description -x 0 -y 0 -z 0" />
+	args="-urdf -model rosmip -param robot_description -x $(arg x0) -y $(arg y0) -z 0" />
 
 </launch>

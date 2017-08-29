@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<!--
+
+Odometry (mapless) rosmip navigation demonstration.
+- rosmip in gazebo
+- controllers ( move base, global planner, local planner )
+- rviz
+
+-->
+
+<launch>
+
+  <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch" />
+  <include file="$(find rosmip_navigation)/launch/odom_navigation_demo.launch" /> 
+<!--  <include file="$(find rosmip_viz)/launch/view_navigation.launch" /> -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/navigation.rviz" />
+</launch>
