@@ -24,6 +24,9 @@
   <material name="yellow"><color rgba="0.8 0.8 0.0 1.0" /></material>
   <material name="black"><color rgba="0.15 0.15 0.15 1.0" /></material>
 
+  <!-- infrared marker -->
+  <xacro:property name="use_infrared_marker" value="true" />
+  
   <!-- Inertia macros -->
   <xacro:include filename="$(find rosmip_description)/urdf/inertias.urdf.xacro" />
   
@@ -108,15 +111,17 @@
   <link name="chassis_link">
     <visual>
       <origin xyz="0 0 ${chassis_vert_offset}" rpy="0 0 0"/>
-      <geometry>
 	<xacro:if value="${high_definition_body_visual}">
-	  <mesh filename="package://rosmip_description/meshes/body_minion.dae"/>
+	  <geometry>
+	    <mesh filename="package://rosmip_description/meshes/body_minion.dae"/>
+	  </geometry>
 	</xacro:if>
 	<xacro:unless value="${high_definition_body_visual}">
-	  <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+	  <geometry>
+	    <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+	  </geometry>
+	  <material name="yellow" />
 	</xacro:unless>
-      </geometry>
-      <!--<material name="yellow" />-->
     </visual>
     <collision>
       <origin xyz="0 0 ${chassis_vert_offset}"/>
@@ -135,6 +140,41 @@
   </gazebo>
   -->
 
+  <!-- Infrared Marker -->
+  
+  <xacro:if value="${use_infrared_marker}">
+    <xacro:property name="irm_z" value="0.15" />
+    <xacro:property name="irm_dx" value="0.01" />
+    <xacro:property name="irm_dy" value="0.1" />
+    <xacro:property name="irm_dz" value="0.01" />
+    <xacro:property name="irm_mass" value="0.01" />
+    <link name="irm_link">
+      <visual>
+	<origin xyz="0 0 0" rpy="0 0 0"/>
+	<geometry>
+	  <!--<box size="${irm_dx} ${irm_dy} ${irm_dz}"/>-->
+	  <mesh filename="package://rosmip_description/meshes/ir_marker.dae"/>
+	</geometry>
+      </visual>
+      <collision>
+	<origin xyz="0 0 0" rpy="0 0 0"/>
+	<geometry>
+	  <box size="${irm_dx} ${irm_dy} ${irm_dz}"/>
+	</geometry>
+      </collision>
+      <xacro:inertial_cuboid_with_pose mass="${irm_mass}" x_length="${irm_dx}" y_length="${irm_dy}" z_length="${irm_dz}">
+	<origin xyz="0.00  0.00 0" rpy="0 0 0"/>
+      </xacro:inertial_cuboid_with_pose> 
+    </link>
+
+    <joint name="irm_joint" type="fixed">
+      <origin xyz="0 0 ${irm_z}" rpy="0 0 0" />
+      <parent link="chassis_link"/>
+      <child link="irm_link" />
+    </joint>
+    
+  </xacro:if>
+    
   
   <!-- IMU -->
   <link name="imu_link"/>
