@@ -112,7 +112,7 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES rosmip_controller
+  LIBRARIES rosmip_controller_legacy
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -218,7 +218,7 @@ target_link_libraries(rosmip_hardware_interface_node
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
-install(FILES rosmip_control_plugins.xml
+install(FILES rosmip_control_plugin_legacy.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 

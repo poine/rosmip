@@ -24,6 +24,6 @@ Static map rosmip navigation demonstration.
     <arg name="map_path" value="$(arg map_path)" />
   </include> 
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/navigation.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/smocap.rviz" />
 
 </launch>
