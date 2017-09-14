@@ -87,7 +87,7 @@ RosMipLegacyController:: ~RosMipLegacyController() {
 }
 
 
-  
+#define SQR(_a) (_a*_a)
 /*******************************************************************************
  *
  *
@@ -111,6 +111,9 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     
     state_est_.init();
     inp_mng_.init(hw, controller_nh);
+
+    controller_nh.param("enable_odom_tf", enable_odom_tf_, enable_odom_tf_);
+    ROS_INFO_STREAM_NAMED(__NAME, "Publishing to tf is " << (enable_odom_tf_?"enabled":"disabled"));
     
     debug_pub_.reset(new realtime_tools::RealtimePublisher<rosmip_control::debug>(controller_nh, "debug", 100));
     const std::string base_frame_id_ = "base_link";
@@ -122,8 +125,8 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     tf_odom_pub_->msg_.transforms[0].header.frame_id = odom_frame_id_;
 
     //
-    double pose_cov_list[6] = {1, 1, 1, 1, 1, 1};
-    double twist_cov_list[6] = {1, 1, 1, 1, 1, 1};
+    double pose_cov_list[6] = {SQR(0.1), SQR(0.1), SQR(0.1), SQR(0.1), SQR(0.1), SQR(0.1)};
+    double twist_cov_list[6] = {SQR(0.1), SQR(0.1), SQR(0.1), SQR(0.1), SQR(0.1), SQR(0.1)};
     
     odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(controller_nh, "odom", 100));
     odom_pub_->msg_.header.frame_id = odom_frame_id_;

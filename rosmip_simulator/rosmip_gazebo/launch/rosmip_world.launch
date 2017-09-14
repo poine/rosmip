@@ -8,6 +8,7 @@
   <arg name="config" default="rosmip"/>
   <arg name="x0" default="0.5"/>
   <arg name="y0" default="0.5"/>
+  <arg name="controller_enable_odom_tf" default="true" />
        
   <!-- Launch Gazebo with the specified world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -23,7 +24,9 @@
     <arg name="config" value="$(arg config)" />
   </include>
   <!-- start balance controller -->
-  <include file="$(find rosmip_control)/launch/control_balance.launch" />
+  <include file="$(find rosmip_control)/launch/control_balance.launch">
+    <arg name="enable_odom_tf" value="$(arg controller_enable_odom_tf)" />
+  </include>
 
   <!-- Spawn ROSMip -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
