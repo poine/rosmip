@@ -79,9 +79,9 @@ odom0: rosmip_balance_controller/odom
 # do not provide some of the state variables estimated by the filter. For example, a TwistWithCovarianceStamped message
 # has no pose information, so the first six values would be meaningless in that case. Each vector defaults to all false
 # if unspecified, effectively making this parameter required for each sensor.
-odom0_config: [true,  true,  false,
-               false, true,  true,
-               true,  true,  false,
+odom0_config: [true,  true,  true,
+               false, false,  true,
+               true,  true,  true,
                false, false, true,
                false, false, false]
 
@@ -142,7 +142,7 @@ pose0_config: [true,  true,  true,
 pose0_differential: false
 pose0_relative: false
 pose0_queue_size: 5
-pose0_rejection_threshold: 2  # Note the difference in parameter name
+#pose0_rejection_threshold: 2  # Note the difference in parameter name
 pose0_nodelay: false
 
 # twist0: example/twist
@@ -185,7 +185,7 @@ pose0_nodelay: false
 # predicition. Note that if an acceleration measurement for the variable in question is available from one of the
 # inputs, the control term will be ignored.
 # Whether or not we use the control input during predicition. Defaults to false.
-use_control: false
+use_control: true
 # Whether the input (assumed to be cmd_vel) is a geometry_msgs/Twist or geometry_msgs/TwistStamped message. Defaults to
 # false.
 stamped_control: false
