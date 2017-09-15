@@ -43,19 +43,17 @@ class FakeLocalization:
         self.tfl = tf.TransformListener()
 
     def run(self):
-        rate = rospy.Rate(20.)
+        rate = rospy.Rate(50.)
         while not rospy.is_shutdown():
             self.periodic()
             rate.sleep()
             
     def periodic(self):
-        #(_t, _q) = self.tfl.lookupTransform(_to, _from, rospy.Time(0))
         try:
             bl_to_odom_t, bl_to_odom_q = self.tfl.lookupTransform(target_frame='/odom', source_frame='/base_link', time=rospy.Time(0))
             bl_to_odom_T = T_of_tq(bl_to_odom_t, bl_to_odom_q)
             odom_to_bl_T =  np.linalg.inv(bl_to_odom_T)
             bl_to_map_T = self.trl.get_body_to_world_T()
-            #map_to_bl_T = np.linalg.inv(bl_to_map_T)
             map_to_odom_T = np.dot(bl_to_map_T, odom_to_bl_T)
             map_to_odom_t, map_to_odom_q = tq_of_T(map_to_odom_T)
             #map_to_odom_t, map_to_odom_q = [0.5, 0.5, 0], tf.transformations.quaternion_from_euler(0, 0, 0.)

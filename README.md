@@ -3,7 +3,7 @@ ROS Mobile Inverted Pendulum
 
 This project is an attempt to create a ROS version of EduMip (https://github.com/StrawsonDesign/EduMiP), a lightweight beaglebone based mobile inverted pendulum.
 
-I am currently working on getting ROSMIP to navigate using movebase. In the repository are the hardware interface and the balancing controller (adapted from roboticscape example) used to integrate MIP with ROS. Included is also a gazebo simulation model.
+ROSMIP is able to navigate using movebase. In the repository are the hardware interface and the balancing controller (adapted from roboticscape example) used to integrate MIP with ROS. Included is also a gazebo simulation model. Short term/ relative positioning is done using odometry. For long term/absolute positioning, I am developing a simple camera-based tracker, [smocap](https://github.com/poine/smocap).
 
 Until i get time to document the project, here are a couple of pictures:
 
