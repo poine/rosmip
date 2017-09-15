@@ -25,6 +25,7 @@ Here are a couple of pictures:
   </td>
   <td>
   <img src="https://lh3.googleusercontent.com/COWQ_6q6h7Rh0wXhdVP5C7y8bAPbKxnDrzeqR6t998mR4fqHHeUQ1q9st0E46-gQ6Y5W0FgNYn9_9FUtxP_6zjoz5G1PjyLnBJRNUw7zc1kSGatyzEqvB9QJ6m8KkFxVXRslHGkrmu1T_Zm46ljH44bJEhKUy-UPsecPunq1-1mTn1ljlK8tg3C2oCCPy2TE1R60ldl9s0CnM4tOOkrHtb5nHG0Ey8Fvy95aIbQ-nMoHpn1rSOHD_uCgGsGT3w89ce77sw5Uvcc5GxjOrioFE6IoNViJGDlDH8xyyKFI_lvvOqqcTfUnidWrun5fszTX8grSpEVim8DAIwXc10_RDKGZ-JzrM7eqYZLavmUzjfYA08c3YXxmJ1FHXMIYgD_XROaQhMgt32iSI47t8DvKsLwkCyAe75zqJh_kSD5ltCXhojI_dPlwEXljMi5_LROhr_zy7WJp7HppZkMcyAW4A3sw9chpoD7OenXRdmuiLUvmL7zv1PFM5KlgVGOqVoOKjYh4KM5YqTpJ_XH5Lg6zo6eLStqF6emL17AW8YMLpKdNlBHLKxPPuBhI_U2NvpBjoVHRNMuxM5iJJD36_i3UFeE2l7l1V7PZaHYdD9B2iBc=w587-h782-no" alt="Rosmip with IR marker" />
+  </td>
   </tr>
   <tr>
   <td>ROSMIP Hardware</td> <td>ROSMIP in Gazebo</td> <td>ROSMIP in rviz</td> <td> Rosmip v1 with IR marker </td>
