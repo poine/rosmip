@@ -27,5 +27,9 @@ Until i get time to document the project, here are a couple of pictures:
   <tr>
   <td>ROSMIP Hardware</td> <td>ROSMIP in Gazebo</td> <td>ROSMIP in rviz</td>
   </tr>
-</table>
+  </table>
+
+
+* [Getting started](docs/getting_started.md)
+* [Hardware](docs/hardware.md)
 
