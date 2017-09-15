@@ -1,7 +1,9 @@
 # getting started
 
 ## Installing
-clone and build the repository in a catkin workspace (maybe look at [this](http://wiki.ros.org/catkin/Tutorials/workspace_overlaying) if you are not familiar with ROS)
+* Install 'Robotics Cape Library for BeagleBone'. You will need my tree in order to get the real hardware running ([here](https://github.com/poine/Robotics_Cape_Installer)). I have submitted a pull request, so hopefully someday upstream lib will work.
+
+* Clone and build the repository in a catkin workspace (maybe look at [this](http://wiki.ros.org/catkin/Tutorials/workspace_overlaying) if you are not familiar with ROS)
 
 ## Running
 
