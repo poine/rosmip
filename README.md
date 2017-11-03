@@ -30,6 +30,14 @@ Here are a couple of pictures:
   <tr>
   <td>ROSMIP v0 Hardware</td> <td>ROSMIP in Gazebo</td> <td>ROSMIP in rviz</td> <td> Rosmip v1 with IR marker </td>
   </tr>
+  <tr> 
+  <td> 
+  <a href="https://youtu.be/CxEfidW_15c"><img src="https://lh5.googleusercontent.com/rYDiZ9pE-Kq6ll2QeSQS8jVsgAFPFzVDHDFqjsIwQXdOyfZ_K8Nb5sLM3Tk7jl208omNAKqZ-vUjqjbOrXNrYlpatG2JMKxpoxQcGsf6U3Xd_7WY1N9Xs5WruEdimSj53lcon-TP"/></a>
+</td>
+  </tr>
+  <tr> 
+  <td> ROSMIP following a curvy track under the authority of a pure pursuit controller</td>
+  </tr>
   </table>
 
 
