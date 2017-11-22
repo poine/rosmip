@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="map" default="$(find rosmip_worlds)/maps/track_ethz_dual.yaml" />
+  <arg name="path_filename" default="$(find oscar_control)/paths/track_ethz_dual_01.npz" />
+  
+  <!--  ****** Maps *****  -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
+    <param name="frame_id" value="/map"/>
+  </node>
+
+  <!--  ****** Navigation Filter *****  -->
+  <include file="$(find rosmip_navigation)/launch/robot_localization_ekf.launch"/>
+  
+  <!--  ****** Pure Pursuit controller *****  -->
+ <node name="pure_pursuit" pkg="oscar_control" type="pure_pursuit.py">
+    <param name="twist_cmd_topic" value="rosmip_balance_controller/cmd_vel"/>
+    <param name="path_filename" value="$(arg path_filename)"/>
+    <param name="vel_setpoint" value="0.6"/>
+    <param name="vel_adaptive" value="false"/>
+    <param name="look_ahead" value="0.4"/>
+  </node>
+
+  <!--  ****** World to map transform publisher *****  -->
+  <node name="world_to_map_publisher" pkg="tf" type="static_transform_publisher"
+        args="0 0 0  0 0 0 world map 100"/>
+
+</launch>

@@ -133,7 +133,7 @@ odom0_relative: false
 #odom1_twist_rejection_threshold: 0.2
 #odom1_nodelay: false
 
-pose0: smocap/est_world
+pose0: smocap/est_marker
 pose0_config: [true,  true,  true,
                false, false, true,
                false, false, false,
