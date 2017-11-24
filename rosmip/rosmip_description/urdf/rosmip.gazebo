@@ -28,6 +28,13 @@
     </plugin>
     <!-- -->
 
+    <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+      <frameName>world</frameName>
+      <bodyName>base_link</bodyName>
+      <topicName>rosmip/base_link_truth</topicName>
+      <updateRate>30.0</updateRate>
+    </plugin>
+
     <!--
     <plugin name="imu_pluggin" filename="libhector_gazebo_ros_imu.so">
       <updateRate>100.0</updateRate>

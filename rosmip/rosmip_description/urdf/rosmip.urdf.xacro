@@ -143,8 +143,11 @@
   <!-- Infrared Marker -->
   
   <xacro:if value="${use_infrared_marker}">
-    <xacro:include filename="$(find smocap)/urdf/ir_marker.urdf.xacro" />
-    
+     <xacro:arg name="root_link" default="irm_link"/>
+     <xacro:arg name="mesh" default="ir_marker.dae"/>
+     <xacro:include filename="$(find smocap)/urdf/ir_marker.urdf.xacro" />
+     <xacro:ir_marker root_link="$(arg root_link)" mesh="$(arg mesh)"/>
+     
     <xacro:property name="irm_z" value="0.15" />
 
     <joint name="irm_joint" type="fixed">
