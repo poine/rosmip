@@ -3,7 +3,7 @@ Utility functions
 """
 import math
 import numpy as np
-
+import pickle
 
 """
 Unit convertions
@@ -11,6 +11,46 @@ Unit convertions
 def rad_of_deg(d): return d/180.*math.pi
 
 def deg_of_rad(r): return r*180./math.pi
+
+
+"""
+Misc
+"""
+def save_trajectory(time, X, U, desc, filename):
+    with open(filename, "wb") as f:
+        pickle.dump([time, X, U, desc], f)
+
+def load_trajectory(filename):
+    with open(filename, "rb") as f:
+        time, X, U, desc = pickle.load(f)
+    return time, X, U, desc
+
+
+''' input test vectors '''
+
+def make_random_pulses(dt, size, min_nperiod=1, max_nperiod=10, min_intensity=-1, max_intensity=1.):
+    ''' make a vector of pulses of randon duration and intensities '''
+    npulses = size/max_nperiod*2
+    durations = np.random.random_integers(low=min_nperiod, high=max_nperiod, size=npulses)
+    intensities =  np.random.uniform(low=min_intensity, high=max_intensity, size=npulses)
+    pulses = []
+    for duration, intensitie in zip(durations, intensities):
+        pulses += [intensitie for i in range(duration)]
+    pulses = np.array(pulses)
+    time = np.linspace(0, dt*len(pulses), len(pulses))
+    return time, pulses
+
+def step(t, a0=-1, a1=1, dt=4, t0=0): return a0 if math.fmod(t+t0, dt) > dt/2 else a1
+def sine_sweep(t, omega=2, domega=0.5, domega1=0.5): return math.sin(omega*(1-domega1*math.sin(domega*t))*t)
+
+
+def random_input_vec(time): return np.random.uniform(low=-1.0, high=1.0, size=len(time))
+def step_input_vec(time, a0=-1, a1=1, dt=4, t0=0): return [step(t, a0, a1, dt, t0) for t in time]
+def sine_input_vec(time): return np.sin(time)
+def sawtooth_input_vec(time): return scipy.signal.sawtooth(time)
+def sine_swipe_input_vec(time): return [sine_sweep(t) for t in time]
+
+
 
 """
 Plotting

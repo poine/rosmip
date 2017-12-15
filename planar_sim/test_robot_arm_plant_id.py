@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import logging, timeit, math, numpy as np, scipy.integrate, matplotlib.pyplot as plt, pickle
-import skflow
 import sklearn.neural_network
 import keras
 
 ''' let's try model reference control on the rorbot arm'''
 LOG = logging.getLogger('test_tf')
 
-import utils as ut
+import my_utils as ut
 # https://pyrenn.readthedocs.io/en/latest/train.html
 
 class Plant:
@@ -32,17 +31,19 @@ class Ref:
     def __init__(self, dt):
         self.X = np.zeros(2)
         self.dt = dt
+
+    def cdyn(self, X, t, rk): return np.array([X[1], -9*X[0]-6*X[1]+9*rk])
         
     def get(self, rk):
-        def cdyn(X, t): return np.array([X[1], -9*X[0]-6*X[1]+9*rk])
-        _unused, self.X = scipy.integrate.odeint(cdyn, self.X, [0, self.dt])
+        _unused, self.X = scipy.integrate.odeint(self.cdyn, self.X, [0, self.dt], args=(rk,))
         return self.X
 
     def sim(self, time, X0, yc):
-        X = np.zeros((len(time), 2))
-        X[0] = X0; self.X = np.array(X0)
+        X = np.zeros((len(time), 3))
+        X[0,:2] = X0; self.X = np.array(X0)
         for i in range(1, len(time)):
-            X[i] = self.get(yc[i])
+            X[i,:2] = self.get(yc[i])
+            X[i,2] = self.cdyn(X[i], 0, yc[i])[1]
         return X
         
 
@@ -103,6 +104,7 @@ class ANN_Plant:
             U[i-1] = ctl(X[i-1], i-1)
             inp_im1 = (X[i-1, 0], X[i-1, 1], U[i-1])
             X[i] = self.get(*inp_im1).squeeze()
+        U[-1] = U[-2]
         return X, U
     
     def save(self, filename):
