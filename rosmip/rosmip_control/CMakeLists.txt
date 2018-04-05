@@ -6,6 +6,10 @@ project(rosmip_control)
 add_compile_options(-Wall -std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  message_generation
   controller_interface
   nav_msgs
   realtime_tools
