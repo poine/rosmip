@@ -82,7 +82,7 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
    DEPENDENCIES
-   #   std_msgs  # Or other packages containing msgs
+   std_msgs  # Or other packages containing msgs
 )
 
 ################################################
@@ -117,7 +117,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rosmip_controller_legacy
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
 
