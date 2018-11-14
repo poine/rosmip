@@ -171,7 +171,7 @@ add_executable(rosmip_hardware_interface_node
 # commented to speed up build while developing
 #add_dependencies(rosmip_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-#add_dependencies(rosmip_controller_legacy ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(rosmip_controller_legacy ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 
