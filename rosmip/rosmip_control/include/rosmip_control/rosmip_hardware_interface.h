@@ -12,8 +12,11 @@
 
 #define NB_JOINTS 2
 
+#ifdef USE_ROBOTICSCAPE
 #include "roboticscape.h"
-
+#else
+#include <robotcontrol.h> 
+#endif
 
 class RosMipHardwareInterface : public hardware_interface::RobotHW
 {
@@ -25,9 +28,15 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
   void read();
   bool start();
   bool shutdown();
+  
+#ifdef USE_ROBOTICSCAPE
   void switch_motors_on()  { rc_enable_motors(); }
   void switch_motors_off() { rc_disable_motors(); }
-
+#else
+  void switch_motors_on()  { rc_motor_init(); }
+  void switch_motors_off() {rc_motor_free_spin(0);}
+#endif
+  
   void DSMCallback(void);
   void IMUCallback(void);
   
@@ -54,8 +63,11 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
   hardware_interface::ImuSensorInterface     imu_sensor_interface_;
   hardware_interface::DsmInterface           dsm_interface_;
   
+#ifdef USE_ROBOTICSCAPE
   rc_imu_data_t rc_imu_data_;
-
+#else
+  rc_mpu_data_t rc_imu_data_;
+#endif
   
 };
 

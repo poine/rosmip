@@ -23,6 +23,15 @@ namespace rosmip_controller {
     , angular_acc_(RollingWindow::window_size = velocity_rolling_window_size)
   {}
 
+
+  void StateEstimator::set_wheels_params(double wheel_r, double wheel_sep) {
+    std::cerr << "StateEstimator::set_wheels_params:" << wheel_r << " " << wheel_sep << std::endl;
+    wheel_radius_ = wheel_r;
+    wheel_separation_ = wheel_sep;
+  }
+
+
+  
   void  StateEstimator::init() {
     tf::Quaternion q_base_to_imu;
     q_base_to_imu.setRPY(M_PI/2, 0, M_PI/2);
@@ -45,13 +54,19 @@ namespace rosmip_controller {
     
   }
   
-  void  StateEstimator::update(const ros::Time &now, const double* odom_to_imu_q, const double lw_phi, const double rw_phi) {
+  void  StateEstimator::update(const ros::Time &now, const double* imu_rvel, const double* odom_to_imu_q, const double lw_phi, const double rw_phi) {
 
     q_odom_to_imu_ = tf::Quaternion(odom_to_imu_q[0], odom_to_imu_q[1], odom_to_imu_q[2], odom_to_imu_q[3]); // x, y, z, w
     q_odom_to_base_ =  q_odom_to_imu_ * q_imu_to_base_;
     tf::Matrix3x3(q_odom_to_base_).getRPY( inertial_roll_, inertial_pitch_, inertial_yaw_ );
     //inertial_yaw_ =  get_yaw(q_odom_to_base_);
     //pitch_ = get_pitch(q_odom_to_base_);
+    pitch_dot_ = imu_rvel[2]; // FIXME, I get rz???
+    //pitch_dot_ = imu_rvel[0];
+
+    // Store current wheel angles
+    left_wheel_phi = lw_phi;
+    right_wheel_phi = rw_phi;
     
     /// Get current wheel joint positions:
     const double left_wheel_cur_pos  = lw_phi * wheel_radius_;

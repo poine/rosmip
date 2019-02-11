@@ -1,0 +1,10 @@
+time[15]    stamp
+float64[15] lw_angle
+float64[15] rw_angle
+float64[15] lw_rvel
+float64[15] rw_rvel
+float64[15] pitch
+float64[15] pitch_dot
+int8[15]    lw_pwm
+int8[15]    rw_pwm
+uint16 nb_data

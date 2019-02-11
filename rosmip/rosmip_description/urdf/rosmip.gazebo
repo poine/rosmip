@@ -32,7 +32,7 @@
       <frameName>world</frameName>
       <bodyName>base_link</bodyName>
       <topicName>rosmip/base_link_truth</topicName>
-      <updateRate>30.0</updateRate>
+      <updateRate>100.0</updateRate>
     </plugin>
 
     <!--

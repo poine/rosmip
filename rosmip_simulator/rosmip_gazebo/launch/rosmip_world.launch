@@ -4,7 +4,8 @@
   <arg name="gui" default="true" />
   <arg name="headless" default="false" />
   <arg name="world_path" default="$(find rosmip_gazebo)/worlds/empty.world" />
-
+  <arg name="paused" default="true" />
+  
   <arg name="config" default="rosmip"/>
   <arg name="x0" default="0.5"/>
   <arg name="y0" default="0.5"/>
@@ -17,19 +18,22 @@
     <arg name="use_sim_time" value="$(arg use_sim_time)" />
     <arg name="headless" value="$(arg headless)" />
     <arg name="world_name" value="$(arg world_path)" />
+    <arg name="paused" value="$(arg paused)" />
   </include>
 
   <!-- Load ROSMip's description -->
   <include file="$(find rosmip_description)/launch/description.launch">
     <arg name="config" value="$(arg config)" />
   </include>
+  <!-- Spawn ROSMip -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
+	args="-urdf -model rosmip -param robot_description -x $(arg x0) -y $(arg y0) -z 0" />
   <!-- start balance controller -->
   <include file="$(find rosmip_control)/launch/control_balance.launch">
     <arg name="enable_odom_tf" value="$(arg controller_enable_odom_tf)" />
   </include>
 
-  <!-- Spawn ROSMip -->
-  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
-	args="-urdf -model rosmip -param robot_description -x $(arg x0) -y $(arg y0) -z 0" />
-
+  <!-- Unpause Gazebo -->>
+  <node pkg="rosservice" type="rosservice" name="unpause_gazebo" args="call --wait gazebo/unpause_physics"/>
+  
 </launch>

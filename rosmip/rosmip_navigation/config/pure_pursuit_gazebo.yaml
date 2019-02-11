@@ -1,0 +1,11 @@
+
+pure_pursuit:
+  twist_cmd_topic: rosmip_balance_controller/cmd_vel
+#  path_filename: /home/poine/work/oscar.git/oscar/oscar_control/paths/track_ethz_dual_01.npz
+#  vel_setpoint: 0.1
+  look_ahead: 0.3
+  use_gazebo_truth: true
+#  truth_topic: /rosmip/base_link_truth
+#  truth_topic: /rosmip/ekf/pose
+  wheel_sep: 0.0822
+  vel_adaptive: false

@@ -25,11 +25,15 @@
   <build_depend>message_generation</build_depend>
   <!-- Use buildtool_depend for build tool packages: -->
   <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>roscpp</buildtool_depend>
   <!-- Use run_depend for packages you need at runtime: -->
   <run_depend>message_runtime</run_depend>
+  <build_depend>roscpp</build_depend>
   <build_depend>controller_interface</build_depend>
+  <build_depend>rospy</build_depend>
   <run_depend>controller_interface</run_depend>
-
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
   
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->

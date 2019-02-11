@@ -32,7 +32,7 @@ include_directories(${RC_CAPE_INCLUDE_DIRS})
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -63,6 +63,7 @@ add_message_files(
   DIRECTORY msg
   FILES
   debug.msg
+  msg_debug_io.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -117,7 +118,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rosmip_controller_legacy
-  CATKIN_DEPENDS message_runtime
+  CATKIN_DEPENDS roscpp rospy message_runtime
 #  DEPENDS system_lib
 )
 
@@ -130,6 +131,7 @@ catkin_package(
 
 include_directories(
   include
+  /home/poine/src/librobotcontrol/library/include/
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -145,6 +147,9 @@ add_library(rosmip_controller_legacy
   src/state_estimation.cpp
   src/tipping_monitor.cpp
   src/input_manager.cpp
+  src/publisher.cpp
+  src/legacy_ctl_law.cpp
+  src/sfb_ctl_law.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -180,11 +185,13 @@ add_dependencies(rosmip_controller_legacy ${${PROJECT_NAME}_EXPORTED_TARGETS} ${
 #)
 
 target_link_libraries(rosmip_controller_legacy
-  ${catkin_LIBRARIES} roboticscape 
+#  ${catkin_LIBRARIES} roboticscape 
+  ${catkin_LIBRARIES} robotcontrol 
 )
 
 target_link_libraries(rosmip_hardware_interface_node
-  ${catkin_LIBRARIES} roboticscape 
+  #  ${catkin_LIBRARIES} roboticscape
+  ${catkin_LIBRARIES} robotcontrol 
 )
 
 

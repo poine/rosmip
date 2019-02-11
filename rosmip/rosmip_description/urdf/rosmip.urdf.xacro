@@ -8,7 +8,7 @@
   <xacro:property name="chassis_width"  value="0.062" />
   <xacro:property name="chassis_height" value="0.12" />
   <xacro:property name="chassis_mass"   value="0.18" />
-  <xacro:property name="chassis_vert_offset" value="0.085" />
+  <xacro:property name="chassis_vert_offset" value="0.055" />
 
   <xacro:property name="wheel_radius" value="0.03" />
   <xacro:property name="wheel_width"  value="0.01" />
@@ -90,10 +90,10 @@
 
 
   <xacro:wheel prefix="left" lr_reflect="1">
-    <origin xyz="0 ${(wheel_track-wheel_width)/2} ${wheel_radius}" rpy="0 0 0" />
+    <origin xyz="0 ${(wheel_track-wheel_width)/2} 0" rpy="0 0 0" />
   </xacro:wheel>
   <xacro:wheel prefix="right"  lr_reflect="-1">
-    <origin xyz="0 ${-(wheel_track-wheel_width)/2} ${wheel_radius}" rpy="0 0 0" />
+    <origin xyz="0 ${-(wheel_track-wheel_width)/2} 0" rpy="0 0 0" />
   </xacro:wheel>
 
 
@@ -148,7 +148,7 @@
      <xacro:include filename="$(find smocap)/urdf/ir_marker.urdf.xacro" />
      <xacro:ir_marker root_link="$(arg root_link)" mesh="$(arg mesh)"/>
      
-    <xacro:property name="irm_z" value="0.15" />
+    <xacro:property name="irm_z" value="0.12" />
 
     <joint name="irm_joint" type="fixed">
       <origin xyz="0 0 ${irm_z}" rpy="0 0 0" />

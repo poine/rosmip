@@ -22,13 +22,16 @@ namespace rosmip_controller {
 
     sub_command_ = controller_nh.subscribe("cmd_vel", 1, &InputManager::cmdVelCallback, this);
 
+    rt_commands_.lin = 0.;
+    rt_commands_.ang = 0.;
+	
     return true;
   }
 
 
   void InputManager::update(const ros::Time& now) {
 
-    if (*dsm_.getOk() and *dsm_.getModeSwitch() > 0.5) {
+    if (0) { //*dsm_.getOk() and *dsm_.getModeSwitch() > 0.5) {
       rt_commands_.lin = *dsm_.getDriveStick() * DRIVE_RATE_ADVANCED;
       rt_commands_.ang = *dsm_.getTurnStick() * TURN_RATE_ADVANCED;
     }
@@ -39,9 +42,10 @@ namespace rosmip_controller {
 	rt_commands_.lin = 0.;
 	rt_commands_.ang = 0.;
       }
-      //else
+	//else
       //	std::cerr << "ros cmd" << std::endl;
     }
+    
     
   }
 

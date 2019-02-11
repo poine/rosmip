@@ -16,7 +16,7 @@
 
 namespace rosmip_hardware_gazebo {
 #define NB_JOINTS 2
-
+  
   class RosMipHardwareInterface : public gazebo_ros_control::RobotHWSim
   {
   public:

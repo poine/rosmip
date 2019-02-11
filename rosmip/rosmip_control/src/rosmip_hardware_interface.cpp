@@ -107,12 +107,11 @@ RosMipHardwareInterface::~RosMipHardwareInterface() {
  *
  *******************************************************************************/
 bool RosMipHardwareInterface::start() {
-
+#ifdef USE_ROBOTICSCAPE
   if(rc_initialize()){
     ROS_ERROR("in RosMipHardwareInterface::start: failed to initialize robotics cape");
     return false;
   }
-
   rc_imu_config_t imu_config = rc_default_imu_config();
   imu_config.dmp_sample_rate = SAMPLE_RATE_HZ;
   // ORIENTATION_Z_UP
@@ -131,11 +130,12 @@ bool RosMipHardwareInterface::start() {
     return false;
   }
   rc_set_imu_interrupt_func(&_imu_callback, reinterpret_cast<void*>(this));
-  
   // start dsm listener
   rc_initialize_dsm();
   rc_set_dsm_data_func(&_dsm_callback, reinterpret_cast<void*>(this));
-  
+#else
+
+#endif
   rc_set_state(RUNNING);
   return true;
 }
@@ -147,8 +147,12 @@ bool RosMipHardwareInterface::start() {
  *******************************************************************************/
 bool RosMipHardwareInterface::shutdown() {
   ROS_INFO("in RosMipHardwareInterface::shutdown");
+#ifdef USE_ROBOTICSCAPE
   rc_power_off_imu();
   rc_cleanup();
+#else
+  rc_mpu_power_off();
+#endif
 
   return true;
 }
@@ -160,8 +164,14 @@ bool RosMipHardwareInterface::shutdown() {
  *******************************************************************************/
 void RosMipHardwareInterface::read() {
   //ROS_INFO(" read HW");
+#ifdef USE_ROBOTICSCAPE
   double left_wheel_angle = rc_get_encoder_pos(ENCODER_CHANNEL_L) * 2 * M_PI / (ENCODER_POLARITY_L * GEARBOX * ENCODER_RES);
   double right_wheel_angle = rc_get_encoder_pos(ENCODER_CHANNEL_R) * 2 * M_PI / (ENCODER_POLARITY_R * GEARBOX * ENCODER_RES);
+#else
+  double left_wheel_angle = rc_encoder_read(ENCODER_CHANNEL_L) * 2 * M_PI / (ENCODER_POLARITY_L * GEARBOX * ENCODER_RES);
+  double right_wheel_angle = rc_encoder_read(ENCODER_CHANNEL_R) * 2 * M_PI / (ENCODER_POLARITY_R * GEARBOX * ENCODER_RES);
+#endif
+
   joint_velocity_[0] = (left_wheel_angle - joint_position_[0]) / DT;
   joint_velocity_[1] = (right_wheel_angle - joint_position_[1]) / DT;
   joint_position_[0] = left_wheel_angle;
@@ -171,6 +181,7 @@ void RosMipHardwareInterface::read() {
   //ROS_INFO(" read HW %f %f %f %f", imu_orientation_[0], imu_orientation_[1], imu_orientation_[2], imu_orientation_[3]);
   
   // FIXME... where is the mutex ?
+#ifdef USE_ROBOTICSCAPE
   if(rc_is_new_dsm_data()){
     turn_stick_  = rc_get_dsm_ch_normalized(DSM_TURN_CH) * DSM_TURN_POL;
     drive_stick_ = rc_get_dsm_ch_normalized(DSM_DRIVE_CH)* DSM_DRIVE_POL;
@@ -185,6 +196,7 @@ void RosMipHardwareInterface::read() {
     dsm_ok_ = false;
   }
   //ROS_INFO(" DSM %d", dsm_ok_);
+#endif
 }
 
 /*******************************************************************************
@@ -196,10 +208,13 @@ void RosMipHardwareInterface::write() {
   float dutyL =  joint_effort_command_[0];
   float dutyR =  joint_effort_command_[1];
   //ROS_INFO(" write HW %f %f %f", joint_effort_command_[0], dutyL, dutyR);
-  
+#ifdef USE_ROBOTICSCAPE  
   rc_set_motor(MOTOR_CHANNEL_L, MOTOR_POLARITY_L * dutyL);
   rc_set_motor(MOTOR_CHANNEL_R, MOTOR_POLARITY_R * dutyR);
-  
+#else
+  rc_motor_set(MOTOR_CHANNEL_L, MOTOR_POLARITY_L * dutyL);
+  rc_motor_set(MOTOR_CHANNEL_R, MOTOR_POLARITY_R * dutyR);
+#endif
 }
 
 /*******************************************************************************
@@ -256,10 +271,11 @@ int main(int argc, char** argv)
   ros::Duration period(DT);
   while (ros::ok() and rc_get_state()!=EXITING)
   {
+#ifdef USE_ROBOTICSCAPE
     pthread_mutex_lock( &rc_imu_read_mutex );
     pthread_cond_wait( &rc_imu_read_condition, &rc_imu_read_mutex );
     pthread_mutex_unlock( &rc_imu_read_mutex );
-    
+#endif
     hw.read();
     cm.update(ros::Time::now(), period);
     hw.write();

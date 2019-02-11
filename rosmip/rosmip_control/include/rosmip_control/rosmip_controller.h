@@ -19,11 +19,16 @@
 #include <tf/tfMessage.h>
 #include <tf/LinearMath/Quaternion.h>
 
+#ifedf USE_ROBOTICSCAPE
 #include "roboticscape.h"
+#else
+#include "robotcontrol.h"
+#endif
 
 #include "rosmip_control/rosmip_hardware_interface.h"
 #include "rosmip_control/state_estimation.h"
 #include "rosmip_control/tipping_monitor.h"
+#include "rosmip_control/publisher.h"
 
 namespace rosmip_controller {
 
@@ -54,7 +59,8 @@ namespace rosmip_controller {
     std::shared_ptr<realtime_tools::RealtimePublisher<rosmip_control::debug> > debug_pub_;
     std::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::Odometry> > odom_pub_;
     std::shared_ptr<realtime_tools::RealtimePublisher<tf::tfMessage> > tf_odom_pub_;
-
+    rosmip_controller::DebugIOPublisher debug_io_publisher_;
+ 
     /// Dynamic reconfigure
     dynamic_reconfigure::Server<rosmip_control::balancerConfig>* cfg_server_;
     void cfg_callback(rosmip_control::balancerConfig &config, uint32_t level);

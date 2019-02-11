@@ -17,8 +17,9 @@ namespace rosmip_controller {
     StateEstimator(double wheel_r, double wheel_sep, size_t velocity_rolling_window_size = 10);
 
     void init();
+    void set_wheels_params(double wheel_r, double wheel_sep);
     void starting(const ros::Time& now, const double* odom_to_imu_q, const double lw_phi, const double rw_phi);
-    void update(const ros::Time &now, const double* odom_to_imu_q, const double lw_phi, const double rw_phi);
+    void update(const ros::Time &now, const double* imu_rvel, const double* odom_to_imu_q, const double lw_phi, const double rw_phi);
 
     /// Current timestamp:
     ros::Time timestamp_;
@@ -32,6 +33,7 @@ namespace rosmip_controller {
     tf::Quaternion q_odom_to_base_;  // combination of the above two
     double inertial_roll_, inertial_pitch_, inertial_yaw_; // RPY
     double odom_yaw_;
+    double pitch_dot_;
     
     double left_wheel_phi, right_wheel_phi;
       

@@ -3,6 +3,8 @@
 
   <arg name="map" default="$(find rosmip_worlds)/maps/track_ethz_dual.yaml" />
   <arg name="path_filename" default="$(find oscar_control)/paths/track_ethz_dual_01.npz" />
+
+  <arg name="vel_setpoint" default="0.5" />
   
   <!--  ****** Maps *****  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
@@ -13,16 +15,20 @@
   <include file="$(find rosmip_navigation)/launch/robot_localization_ekf.launch"/>
   
   <!--  ****** Pure Pursuit controller *****  -->
- <node name="pure_pursuit" pkg="oscar_control" type="pure_pursuit.py">
-    <param name="twist_cmd_topic" value="rosmip_balance_controller/cmd_vel"/>
-    <param name="path_filename" value="$(arg path_filename)"/>
-    <param name="vel_setpoint" value="0.6"/>
-    <param name="vel_adaptive" value="false"/>
-    <param name="look_ahead" value="0.4"/>
+  <!-- load configuration -->
+  <rosparam command="load" file="$(find rosmip_navigation)/config/pure_pursuit_gazebo.yaml" />
+  <node name="pure_pursuit" pkg="oscar_control" type="pure_pursuit.py" output="screen">
+    <param name="~path_filename" value="$(arg path_filename)" />
+    <!--<param name="~truth_topic" value="/rosmip/base_link_truth" />-->
+    <param name="~truth_topic" value="/rosmip/ekf/pose" />
+    <param name="~vel_setpoint" value="$(arg vel_setpoint)" />
   </node>
 
   <!--  ****** World to map transform publisher *****  -->
   <node name="world_to_map_publisher" pkg="tf" type="static_transform_publisher"
         args="0 0 0  0 0 0 world map 100"/>
 
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/pure_pursuit.rviz" />
+
+  
 </launch>

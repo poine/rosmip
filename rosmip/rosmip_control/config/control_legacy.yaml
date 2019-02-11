@@ -8,6 +8,11 @@ rosmip_imu_controller:
 
 rosmip_balance_controller:
     type: rosmip_control/RosMipControllerLegacy
-#    kp_theta: 0.8
-#    kd_theta: 0.15
-#    enable_odom_tf: false
+    odom_ws: 0.0823
+    odom_lr: 0.0299
+    odom_rr: 0.0299
+    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+    twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+    #    kp_theta: 0.8
+    #    kd_theta: 0.15
+    #    enable_odom_tf: false

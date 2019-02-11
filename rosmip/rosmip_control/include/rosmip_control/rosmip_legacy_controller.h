@@ -19,12 +19,19 @@
 #include <tf/tfMessage.h>
 #include <tf/LinearMath/Quaternion.h>
 
+#ifdef USE_ROBOTICSCAPE
 #include "roboticscape.h"
+#else
+#include <robotcontrol.h>
+#endif
 
 #include "rosmip_control/rosmip_hardware_interface.h"
 #include "rosmip_control/state_estimation.h"
 #include "rosmip_control/tipping_monitor.h"
 #include "rosmip_control/input_manager.h"
+#include "rosmip_control/publisher.h"
+#include "rosmip_control/legacy_ctl_law.h"
+#include "rosmip_control/sfb_ctl_law.h"
 
 namespace rosmip_controller {
 
@@ -51,46 +58,20 @@ namespace rosmip_controller {
     //hardware_interface::DsmHandle dsm_;
  
     /// Publishers
-    bool enable_odom_tf_;
     std::shared_ptr<realtime_tools::RealtimePublisher<rosmip_control::debug> > debug_pub_;
-    std::shared_ptr<realtime_tools::RealtimePublisher<nav_msgs::Odometry> > odom_pub_;
-    std::shared_ptr<realtime_tools::RealtimePublisher<tf::tfMessage> > tf_odom_pub_;
-
+    rosmip_controller::OdomPublisher    odom_publisher_;
+    rosmip_controller::DebugIOPublisher debug_io_publisher_;
+ 
     /// Control Law
-    struct setpoint_t {
-      //	arm_state_t arm_state;	  // see arm_state_t declaration
-      //	drive_mode_t drive_mode;  // NOVICE or ADVANCED
-      float theta;			  // body lean angle (rad)
-      float phi;			  // wheel position (rad)
-      float phi_dot;			  // rate at which phi reference updates (rad/s)
-      float gamma;			  // body turn angle (rad)
-      float gamma_dot;		          // rate at which gamma setpoint updates (rad/s)
-    };
-    struct setpoint_t setpoint_;
-    struct core_state_t {
-      float wheelAngleR;	// wheel rotation relative to body
-      float wheelAngleL;
-      float theta; 		// body angle radians
-      float phi;		// average wheel angle in global frame
-      float gamma;		// body turn (yaw) angle radians
-      float vBatt; 		// battery voltage 
-      float d1_u;		// output of balance controller D1 to motors
-      float d2_u;		// output of position controller D2 (theta_ref)
-      float d3_u;		// output of steering controller D3 to motors
-      float dutyL;	        //
-      float dutyR;	        //
-    };
-    struct core_state_t core_state_;
-    
-    rc_filter_t D1_, D2_, D3_;
+    rosmip_controller::LegacyCtlLaw ctl_law_;
+    rosmip_controller::SFBCtlLaw sfb_ctl_law_;
+    rosmip_controller::StateEstimator state_est_;
+    rosmip_controller::TippingMonitor tip_mon_;
+    rosmip_controller::InputManager   inp_mng_;
 
-    StateEstimator state_est_;
-    TippingMonitor tip_mon_;
-    InputManager   inp_mng_;
     // we keep a pointer on it for non standard stuff like radio control and motors on/off
     RosMipHardwareInterface* hw_;
 
-    void publishOdometry(const ros::Time& now);
     void publishDebug(const ros::Time& now);
     void resetControlLaw();
     
