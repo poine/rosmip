@@ -76,20 +76,24 @@ namespace rosmip_hardware_gazebo {
 
   void RosMipHardwareInterface::readSim(ros::Time time, ros::Duration period) {
     //ROS_INFO_STREAM_NAMED("foo", "RosMipHardwareInterface::readSim");
-    gz_pose_             =  link_->GetWorldPose();
+    //gz_pose_             =  link_->GetWorldPose();
+    gz_pose_             =  link_->WorldPose();
     //gz_acceleration_     = ((link_->GetWorldLinearVel() - gz_velocity_) + acceleration_time_constant * gz_acceleration_) / (period.toSec() + acceleration_time_constant);
-    gz_velocity_         =  link_->GetWorldLinearVel();
-    gz_angular_velocity_ =  link_->GetWorldAngularVel();
+    //gz_velocity_         =  link_->GetWorldLinearVel();
+    gz_velocity_         =  link_->WorldLinearVel();
+    //gz_angular_velocity_ =  link_->GetWorldAngularVel();
+    gz_angular_velocity_ =  link_->WorldAngularVel();
     //std::cerr << gz_pose_ << std::endl;
 
     for (int i=0; i<NB_JOINTS; i++) {
-      joint_position_[i] = gz_joints_[i]->GetAngle(0).Radian();
+      //joint_position_[i] = gz_joints_[i]->GetAngle(0).Radian();
+      joint_position_[i] = gz_joints_[i]->Position(0);
       joint_velocity_[i] = gz_joints_[i]->GetVelocity(0);
     }
     //std::cerr <<  "read " << joint_position_[0] << " " <<  joint_position_[1] << std::endl;
 
     //
-    tf::Quaternion q_world_to_base = tf::Quaternion(gz_pose_.rot.x, gz_pose_.rot.y, gz_pose_.rot.z, gz_pose_.rot.w); // x, y, z, w
+    tf::Quaternion q_world_to_base = tf::Quaternion(gz_pose_.Rot().X(), gz_pose_.Rot().Y(), gz_pose_.Rot().Z(), gz_pose_.Rot().W()); // x, y, z, w
     tf::Quaternion q_world_to_imu = q_world_to_base * q_base_to_imu_;
       
     imu_orientation_[0] = q_world_to_imu.x();
@@ -98,7 +102,7 @@ namespace rosmip_hardware_gazebo {
     imu_orientation_[3] = q_world_to_imu.w();
     //std::cerr <<  gz_pose_.rot.x << " " << gz_pose_.rot.y << " " << gz_pose_.rot.z << " " << gz_pose_.rot.w << std::endl;
     
-    tf::Vector3 rvel_world(gz_angular_velocity_.x, gz_angular_velocity_.y, gz_angular_velocity_.z);
+    tf::Vector3 rvel_world(gz_angular_velocity_.X(), gz_angular_velocity_.Y(), gz_angular_velocity_.Z());
     //tf::Quaternion q_world_to_imu1 = q_world_to_imu.inverse();
     tf::Vector3 rvel_imu = tf::quatRotate(q_world_to_imu, rvel_world);
     imu_angular_velocity_[0] = rvel_imu.x();

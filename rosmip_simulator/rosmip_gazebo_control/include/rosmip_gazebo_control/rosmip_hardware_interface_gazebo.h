@@ -38,9 +38,11 @@ namespace rosmip_hardware_gazebo {
   private:
     gazebo::physics::ModelPtr model_;
     gazebo::physics::LinkPtr link_;
-    gazebo::math::Pose gz_pose_;
-    gazebo::math::Vector3 gz_velocity_, gz_acceleration_, gz_angular_velocity_;
-
+    //gazebo::math::Pose gz_pose_;
+    ignition::math::Pose3d gz_pose_;
+    //gazebo::math::Vector3 gz_velocity_, gz_acceleration_, gz_angular_velocity_;
+    ignition::math::Vector3d gz_velocity_, gz_acceleration_, gz_angular_velocity_;
+    
     gazebo::physics::JointPtr gz_joints_[NB_JOINTS];
     
     //geometry_msgs::Pose pose_;
