@@ -162,7 +162,41 @@ namespace rosmip_controller {
   }
   
 
+  void OdomPublisher::publish(rosmip_controller::StateEstimator& se, const ros::Time& now) {
+    if (last_state_publish_time_ + publish_period_ < now) {
+      last_state_publish_time_ += publish_period_;
 
+#if 0
+      const geometry_msgs::Quaternion orientation(tf::createQuaternionMsgFromYaw(se.odom_yaw_));
+#else
+      geometry_msgs::Quaternion orientation;
+      quaternionTFToMsg(se.q_odom_to_base_ , orientation);
+#endif
+	
+      if (odom_pub_->trylock())
+        {
+	  odom_pub_->msg_.header.stamp = now;
+	  odom_pub_->msg_.pose.pose.position.x = se.x_;
+	  odom_pub_->msg_.pose.pose.position.y = se.y_;
+	  odom_pub_->msg_.pose.pose.position.z = 0.;
+	  odom_pub_->msg_.pose.pose.orientation = orientation;
+	  odom_pub_->msg_.twist.twist.linear.x  = se.linear_;
+	  odom_pub_->msg_.twist.twist.angular.z = se.angular_;
+	  odom_pub_->unlockAndPublish();
+        }
+      
+      if (enable_odom_tf_ && tf_odom_pub_->trylock())
+        {
+	  geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
+	  odom_frame.header.stamp = now;
+	  odom_frame.transform.translation.x = se.x_;
+	  odom_frame.transform.translation.y = se.y_;
+	  odom_frame.transform.rotation = orientation;
+	  tf_odom_pub_->unlockAndPublish();
+        }
+      
+    }
+  }
   
 }
 

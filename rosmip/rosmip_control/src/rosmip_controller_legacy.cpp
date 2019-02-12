@@ -140,8 +140,9 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
   right_wheel_joint_.setCommand(ctl_law_.core_state_.dutyR);
 #endif
 
-  odom_publisher_.publish(state_est_.odom_yaw_, state_est_.x_, state_est_.y_,
-			  state_est_.linear_, state_est_.angular_, now);
+  //odom_publisher_.publish(state_est_.odom_yaw_, state_est_.x_, state_est_.y_,
+  //			  state_est_.linear_, state_est_.angular_, now);
+  odom_publisher_.publish(state_est_, now);
   publishDebug(now);
   debug_io_publisher_.publish(state_est_.left_wheel_phi, state_est_.right_wheel_phi,
 			      0, 0,

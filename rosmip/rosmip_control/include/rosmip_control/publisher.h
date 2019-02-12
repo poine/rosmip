@@ -9,6 +9,7 @@
 #include <tf/tfMessage.h>
 
 #include <rosmip_control/msg_debug_io.h>
+#include <rosmip_control/state_estimation.h>
 
 #define MAX_SENSOR_LEN 15
 #define MIN_SENSOR_FOR_PUBLISH 10
@@ -53,6 +54,7 @@ namespace rosmip_controller {
     void init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
     void starting(const ros::Time& now);
     void publish(const double heading, const double x, const double y, const double linear, const double angular, const ros::Time& now);
+    void publish(rosmip_controller::StateEstimator& se, const ros::Time& now);
 
   private:
     std::string odom_frame_id_;
