@@ -24,8 +24,8 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define ENCODER_POLARITY_R              1
 
 // IMU
-#define SAMPLE_RATE_HZ 100
-#define DT (1./SAMPLE_RATE_HZ)
+#define IMU_SAMPLE_RATE_HZ 100
+#define IMU_DT (1./IMU_SAMPLE_RATE_HZ)
 
 // DSM channel config
 #define DSM_DRIVE_POL			1
@@ -35,6 +35,11 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define DSM_TURN_CH			2
 #define DSM_MODE_CH                     6
 #define DSM_DEAD_ZONE			0.02
+
+
+// Global variable because Roboticscape guy refused to add a user supplied argument to their callback
+// Welcome to the 70s....
+static RosMipHardwareInterface* _foo_hw_interf = NULL;
 
 
 void _imu_callback(void* data) { reinterpret_cast<RosMipHardwareInterface*>(data)->IMUCallback(); }
@@ -102,6 +107,18 @@ RosMipHardwareInterface::~RosMipHardwareInterface() {
 
 
 
+#define I2C_BUS 2
+#define GPIO_INT_PIN_CHIP 3
+#define GPIO_INT_PIN_PIN  21
+
+static void __mpu_cbk(void)
+{
+  //ros::Time now = ros::Time::now();
+  //std::cerr << " __mpu_cbk " << now << std::endl;
+  _foo_hw_interf->IMUCallback();
+}
+
+
 /*******************************************************************************
  *
  *
@@ -113,7 +130,7 @@ bool RosMipHardwareInterface::start() {
     return false;
   }
   rc_imu_config_t imu_config = rc_default_imu_config();
-  imu_config.dmp_sample_rate = SAMPLE_RATE_HZ;
+  imu_config.dmp_sample_rate = IMU_SAMPLE_RATE_HZ;
   // ORIENTATION_Z_UP
   // ORIENTATION_Z_DOWN
   // ORIENTATION_X_UP
@@ -134,7 +151,29 @@ bool RosMipHardwareInterface::start() {
   rc_initialize_dsm();
   rc_set_dsm_data_func(&_dsm_callback, reinterpret_cast<void*>(this));
 #else
-
+  // encoders
+  if(rc_encoder_eqep_init()){
+    ROS_ERROR("in RosMipHardwareInterface::start: failed to initialize eqep");
+    return -1;
+  }
+  // motors
+  if (rc_motor_init_freq(RC_MOTOR_DEFAULT_PWM_FREQ)) {
+    ROS_ERROR("in RosMipHardwareInterface::start: failed to initialize motors");
+    return -1;
+  }
+  // IMU
+  rc_mpu_config_t conf = rc_mpu_default_config();
+  conf.i2c_bus = I2C_BUS;
+  conf.gpio_interrupt_pin_chip = GPIO_INT_PIN_CHIP;
+  conf.gpio_interrupt_pin = GPIO_INT_PIN_PIN;
+  conf.dmp_sample_rate = IMU_SAMPLE_RATE_HZ;
+  conf.dmp_fetch_accel_gyro = true;
+  if(rc_mpu_initialize_dmp(&rc_mpu_data_, conf)){
+    ROS_ERROR("in HomereHardwareInterface::start: can't talk to IMU, all hope is lost\n");
+    return false;
+  }
+  _foo_hw_interf = this;
+  rc_mpu_set_dmp_callback(&__mpu_cbk);
 #endif
   rc_set_state(RUNNING);
   return true;
@@ -151,6 +190,7 @@ bool RosMipHardwareInterface::shutdown() {
   rc_power_off_imu();
   rc_cleanup();
 #else
+  rc_encoder_eqep_cleanup();
   rc_mpu_power_off();
 #endif
 
@@ -172,8 +212,8 @@ void RosMipHardwareInterface::read() {
   double right_wheel_angle = rc_encoder_read(ENCODER_CHANNEL_R) * 2 * M_PI / (ENCODER_POLARITY_R * GEARBOX * ENCODER_RES);
 #endif
 
-  joint_velocity_[0] = (left_wheel_angle - joint_position_[0]) / DT;
-  joint_velocity_[1] = (right_wheel_angle - joint_position_[1]) / DT;
+  joint_velocity_[0] = (left_wheel_angle - joint_position_[0]) / IMU_DT;
+  joint_velocity_[1] = (right_wheel_angle - joint_position_[1]) / IMU_DT;
   joint_position_[0] = left_wheel_angle;
   joint_position_[1] = right_wheel_angle;
 
@@ -231,8 +271,10 @@ void RosMipHardwareInterface::DSMCallback(void) {
  *
  *
  *******************************************************************************/
+#define _DEG2RAD(_D) _D/180.*M_PI
 void RosMipHardwareInterface::IMUCallback(void) {
 
+#ifdef USE_ROBOTICSCAPE
   // Called by rc IMU thread
   // imu_orientation is in the order of geometry_msg, ie x, y, z, w
   // wheras dmp_quat is w, x, y, z
@@ -248,7 +290,20 @@ void RosMipHardwareInterface::IMUCallback(void) {
   imu_linear_acceleration_[0] = rc_imu_data_.accel[0];
   imu_linear_acceleration_[1] = rc_imu_data_.accel[1];
   imu_linear_acceleration_[2] = rc_imu_data_.accel[2];
+#else
+  imu_orientation_[0] = rc_mpu_data_.dmp_quat[1];
+  imu_orientation_[1] = rc_mpu_data_.dmp_quat[2];
+  imu_orientation_[2] = rc_mpu_data_.dmp_quat[3];
+  imu_orientation_[3] = rc_mpu_data_.dmp_quat[0];
 
+  imu_angular_velocity_[0] = _DEG2RAD(rc_mpu_data_.gyro[0]); // WTF are those units !!!
+  imu_angular_velocity_[1] = _DEG2RAD(rc_mpu_data_.gyro[1]);
+  imu_angular_velocity_[2] = _DEG2RAD(rc_mpu_data_.gyro[2]); 
+
+  imu_linear_acceleration_[0] = rc_mpu_data_.accel[0];
+  imu_linear_acceleration_[1] = rc_mpu_data_.accel[1];
+  imu_linear_acceleration_[2] = rc_mpu_data_.accel[2];
+#endif
 }
 
 #include <controller_manager/controller_manager.h>
@@ -268,13 +323,15 @@ int main(int argc, char** argv)
 
   ros::NodeHandle nh;
   controller_manager::ControllerManager cm(&hw, nh);
-  ros::Duration period(DT);
+  ros::Duration period(IMU_DT);
   while (ros::ok() and rc_get_state()!=EXITING)
   {
 #ifdef USE_ROBOTICSCAPE
     pthread_mutex_lock( &rc_imu_read_mutex );
     pthread_cond_wait( &rc_imu_read_condition, &rc_imu_read_mutex );
     pthread_mutex_unlock( &rc_imu_read_mutex );
+#else
+    rc_mpu_block_until_dmp_data();
 #endif
     hw.read();
     cm.update(ros::Time::now(), period);

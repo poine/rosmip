@@ -33,7 +33,7 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
   void switch_motors_on()  { rc_enable_motors(); }
   void switch_motors_off() { rc_disable_motors(); }
 #else
-  void switch_motors_on()  { rc_motor_init(); }
+  void switch_motors_on()  {rc_motor_init(); }
   void switch_motors_off() {rc_motor_free_spin(0);}
 #endif
   
@@ -66,7 +66,7 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
 #ifdef USE_ROBOTICSCAPE
   rc_imu_data_t rc_imu_data_;
 #else
-  rc_mpu_data_t rc_imu_data_;
+  rc_mpu_data_t rc_mpu_data_;
 #endif
   
 };
