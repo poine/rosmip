@@ -20,7 +20,6 @@ namespace rosmip_controller {
 #define ENCODER_CHANNEL_L  1
 #define ENCODER_CHANNEL_R  2
 #define WHEEL_RADIUS_M     0.03
-//#define WHEEL_TRACK_M      (0.083+0.01)
 #define WHEEL_TRACK_M      (0.083)
 
 
@@ -81,10 +80,10 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     
     inp_mng_.init(hw, controller_nh);
     
-    debug_pub_.reset(new realtime_tools::RealtimePublisher<rosmip_control::debug>(controller_nh, "debug", 100));
- 
     odom_publisher_.init(root_nh, controller_nh);
     debug_io_publisher_.init(root_nh, controller_nh);
+    debug_ctl_publisher_.init(root_nh, controller_nh);
+
     
     ROS_INFO_STREAM_NAMED(__NAME, "leaving RosMipLegacyController::init...");
     return true;
@@ -100,6 +99,7 @@ void RosMipLegacyController::starting(const ros::Time& now) {
   ctl_law_.starting();
   sfb_ctl_law_.starting();
   odom_publisher_.starting(now);
+  debug_ctl_publisher_.starting(now);
 }
   
 /*******************************************************************************
@@ -140,10 +140,8 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
   right_wheel_joint_.setCommand(ctl_law_.core_state_.dutyR);
 #endif
 
-  //odom_publisher_.publish(state_est_.odom_yaw_, state_est_.x_, state_est_.y_,
-  //			  state_est_.linear_, state_est_.angular_, now);
   odom_publisher_.publish(state_est_, now);
-  publishDebug(now);
+  debug_ctl_publisher_.publish(ctl_law_, tip_mon_, now);
   debug_io_publisher_.publish(state_est_.left_wheel_phi, state_est_.right_wheel_phi,
 			      0, 0,
 			      state_est_.inertial_pitch_, state_est_.pitch_dot_,
@@ -157,25 +155,25 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
  *
  *
  *******************************************************************************/
-void RosMipLegacyController::publishDebug(const ros::Time& now) {
-  if (debug_pub_->trylock()) {
-    //debug_pub_->msg_.header.stamp = now;
-    debug_pub_->msg_.gamma = ctl_law_.core_state_.gamma;
-    debug_pub_->msg_.theta = ctl_law_.core_state_.theta;
-    //debug_pub_->msg_.thetad = thetad;
-    debug_pub_->msg_.phiL = ctl_law_.core_state_.wheelAngleL;
-    debug_pub_->msg_.phiR = ctl_law_.core_state_.wheelAngleR;
-    //debug_pub_->msg_.phidL = phidL;
-    //debug_pub_->msg_.phidR = phidR;
-    debug_pub_->msg_.gamma_sp = ctl_law_.setpoint_.gamma;
-    debug_pub_->msg_.theta_sp = ctl_law_.setpoint_.theta;
-    debug_pub_->msg_.phiL_sp = ctl_law_.setpoint_.phi;
-    debug_pub_->msg_.phiR_sp = ctl_law_.setpoint_.gamma;
-    debug_pub_->msg_.tauL = ctl_law_.core_state_.dutyL;
-    debug_pub_->msg_.tauR = ctl_law_.core_state_.dutyR;
-    debug_pub_->unlockAndPublish();
-  }
-}
+// void RosMipLegacyController::publishDebug(const ros::Time& now) {
+//   if (debug_pub_->trylock()) {
+//     //debug_pub_->msg_.header.stamp = now;
+//     debug_pub_->msg_.gamma = ctl_law_.core_state_.gamma;
+//     debug_pub_->msg_.theta = ctl_law_.core_state_.theta;
+//     //debug_pub_->msg_.thetad = thetad;
+//     debug_pub_->msg_.phiL = ctl_law_.core_state_.wheelAngleL;
+//     debug_pub_->msg_.phiR = ctl_law_.core_state_.wheelAngleR;
+//     //debug_pub_->msg_.phidL = phidL;
+//     //debug_pub_->msg_.phidR = phidR;
+//     debug_pub_->msg_.gamma_sp = ctl_law_.setpoint_.gamma;
+//     debug_pub_->msg_.theta_sp = ctl_law_.setpoint_.theta;
+//     debug_pub_->msg_.phiL_sp = ctl_law_.setpoint_.phi;
+//     debug_pub_->msg_.phiR_sp = ctl_law_.setpoint_.gamma;
+//     debug_pub_->msg_.tauL = ctl_law_.core_state_.dutyL;
+//     debug_pub_->msg_.tauR = ctl_law_.core_state_.dutyR;
+//     debug_pub_->unlockAndPublish();
+//   }
+// }
 
 
 /*******************************************************************************

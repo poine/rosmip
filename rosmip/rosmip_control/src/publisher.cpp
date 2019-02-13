@@ -66,6 +66,51 @@ namespace rosmip_controller {
     }
   }
 
+  //********************************
+  //  Send rosmip_control::msg_ctl_debug messages
+  //  They contain high frequency encoders and imu measurements
+  //  sent in chuncks.
+  //********************************
+  DebugCtlPublisher::DebugCtlPublisher():
+    publish_period_(1.0 / 50.) {
+  }
+
+  void DebugCtlPublisher::init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh) {
+    pub_.reset(new realtime_tools::RealtimePublisher<rosmip_control::msg_debug_ctl>(controller_nh, "debug_ctl", 100));
+  }
+
+  void DebugCtlPublisher::starting(const ros::Time& now) {
+    last_state_publish_time_ = now;
+   }
+
+  
+  void DebugCtlPublisher::publish(const LegacyCtlLaw& ctl, const TippingMonitor& tip_mon, const ros::Time& now) {
+    if (now < last_state_publish_time_ + publish_period_)
+      return;
+    last_state_publish_time_ += publish_period_;
+    if (pub_->trylock()) {
+      pub_->msg_.upright = tip_mon. status_;
+      pub_->msg_.sp_theta = ctl.setpoint_.theta;
+      pub_->msg_.sp_phi = ctl.setpoint_.phi;
+      pub_->msg_.sp_phi_dot = ctl.setpoint_.phi_dot;
+      pub_->msg_.sp_gamma = ctl.setpoint_.gamma;
+      pub_->msg_.sp_gamma_dot = ctl.setpoint_.gamma_dot;
+
+      pub_->msg_.wheel_angle_l = ctl.core_state_.wheelAngleL;
+      pub_->msg_.wheel_angle_r = ctl.core_state_.wheelAngleR;
+      pub_->msg_.theta = ctl.core_state_.theta;
+      pub_->msg_.phi = ctl.core_state_.phi;
+      pub_->msg_.gamma = ctl.core_state_.gamma;
+      pub_->msg_.d1_u = ctl.core_state_.d1_u;
+      pub_->msg_.d2_u = ctl.core_state_.d2_u;
+      pub_->msg_.d3_u = ctl.core_state_.d3_u;
+      pub_->msg_.duty_l = ctl.core_state_.dutyL;
+      pub_->msg_.duty_r = ctl.core_state_.dutyR;
+      pub_->unlockAndPublish();
+    }
+  }
+
+  
 
   //********************************
   //  Copied from Homere... I really need a common codebase for controllers
@@ -130,36 +175,36 @@ namespace rosmip_controller {
     last_state_publish_time_ = now;
    }
   
-  void OdomPublisher::publish(const double heading, const double x, const double y, const double linear, const double angular, const ros::Time& now) {
-    if (last_state_publish_time_ + publish_period_ < now) {
-      last_state_publish_time_ += publish_period_;
+  // void OdomPublisher::publish(const double heading, const double x, const double y, const double linear, const double angular, const ros::Time& now) {
+  //   if (last_state_publish_time_ + publish_period_ < now) {
+  //     last_state_publish_time_ += publish_period_;
       
-      const geometry_msgs::Quaternion orientation(tf::createQuaternionMsgFromYaw(heading));
+  //     const geometry_msgs::Quaternion orientation(tf::createQuaternionMsgFromYaw(heading));
 
-      if (odom_pub_->trylock())
-        {
-            odom_pub_->msg_.header.stamp = now;
-            odom_pub_->msg_.pose.pose.position.x = x;
-            odom_pub_->msg_.pose.pose.position.y = y;
-	    odom_pub_->msg_.pose.pose.position.z = 0.;
-            odom_pub_->msg_.pose.pose.orientation = orientation;
-            odom_pub_->msg_.twist.twist.linear.x  = linear;
-            odom_pub_->msg_.twist.twist.angular.z = angular;
-            odom_pub_->unlockAndPublish();
-        }
+  //     if (odom_pub_->trylock())
+  //       {
+  //           odom_pub_->msg_.header.stamp = now;
+  //           odom_pub_->msg_.pose.pose.position.x = x;
+  //           odom_pub_->msg_.pose.pose.position.y = y;
+  // 	    odom_pub_->msg_.pose.pose.position.z = 0.;
+  //           odom_pub_->msg_.pose.pose.orientation = orientation;
+  //           odom_pub_->msg_.twist.twist.linear.x  = linear;
+  //           odom_pub_->msg_.twist.twist.angular.z = angular;
+  //           odom_pub_->unlockAndPublish();
+  //       }
       
-      if (enable_odom_tf_ && tf_odom_pub_->trylock())
-        {
-	  geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
-	  odom_frame.header.stamp = now;
-	  odom_frame.transform.translation.x = x;
-	  odom_frame.transform.translation.y = y;
-	  odom_frame.transform.rotation = orientation;
-	  tf_odom_pub_->unlockAndPublish();
-        }
-    }
+  //     if (enable_odom_tf_ && tf_odom_pub_->trylock())
+  //       {
+  // 	  geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
+  // 	  odom_frame.header.stamp = now;
+  // 	  odom_frame.transform.translation.x = x;
+  // 	  odom_frame.transform.translation.y = y;
+  // 	  odom_frame.transform.rotation = orientation;
+  // 	  tf_odom_pub_->unlockAndPublish();
+  //       }
+  //   }
     
-  }
+  // }
   
 
   void OdomPublisher::publish(rosmip_controller::StateEstimator& se, const ros::Time& now) {

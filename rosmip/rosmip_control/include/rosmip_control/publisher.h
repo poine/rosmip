@@ -9,7 +9,10 @@
 #include <tf/tfMessage.h>
 
 #include <rosmip_control/msg_debug_io.h>
+#include <rosmip_control/msg_debug_ctl.h>
 #include <rosmip_control/state_estimation.h>
+#include <rosmip_control/tipping_monitor.h>
+#include <rosmip_control/legacy_ctl_law.h>
 
 #define MAX_SENSOR_LEN 15
 #define MIN_SENSOR_FOR_PUBLISH 10
@@ -45,6 +48,21 @@ namespace rosmip_controller {
   };
 
   //
+  // Publish debug_ctl
+  //
+  class DebugCtlPublisher {
+  public:
+    DebugCtlPublisher();
+    void init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
+    void starting(const ros::Time& now);
+    void publish(const LegacyCtlLaw& ctl, const TippingMonitor& tip_mon, const ros::Time& now);
+  private:
+    boost::shared_ptr<realtime_tools::RealtimePublisher<rosmip_control::msg_debug_ctl> > pub_;
+    ros::Duration publish_period_;
+    ros::Time last_state_publish_time_;
+  };
+  
+  //
   // Publish odometry
   //
   class OdomPublisher {
@@ -53,7 +71,7 @@ namespace rosmip_controller {
     OdomPublisher();
     void init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
     void starting(const ros::Time& now);
-    void publish(const double heading, const double x, const double y, const double linear, const double angular, const ros::Time& now);
+    //void publish(const double heading, const double x, const double y, const double linear, const double angular, const ros::Time& now);
     void publish(rosmip_controller::StateEstimator& se, const ros::Time& now);
 
   private:

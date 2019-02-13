@@ -62,7 +62,7 @@ catkin_python_setup()
 add_message_files(
   DIRECTORY msg
   FILES
-  debug.msg
+  msg_debug_ctl.msg
   msg_debug_io.msg
 )
 

@@ -31,9 +31,10 @@ namespace rosmip_controller {
     tf::Quaternion q_imu_to_base_;   // constant
     tf::Quaternion q_odom_to_imu_;   // provided by DMP's AHRS
     tf::Quaternion q_odom_to_base_;  // combination of the above two
-    double inertial_roll_, inertial_pitch_, inertial_yaw_; // RPY
+    double inertial_roll_, inertial_pitch_, inertial_yaw_; // RPY from MPU
     double odom_yaw_;
     double pitch_dot_;
+    tf::Vector3 body_rvel_;
     
     double left_wheel_phi, right_wheel_phi;
       

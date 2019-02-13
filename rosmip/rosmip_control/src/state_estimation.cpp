@@ -58,7 +58,13 @@ namespace rosmip_controller {
 
     q_odom_to_imu_ = tf::Quaternion(odom_to_imu_q[0], odom_to_imu_q[1], odom_to_imu_q[2], odom_to_imu_q[3]); // x, y, z, w
     q_odom_to_base_ =  q_odom_to_imu_ * q_imu_to_base_;
-    tf::Matrix3x3(q_odom_to_base_).getRPY( inertial_roll_, inertial_pitch_, inertial_yaw_ );
+    const tf::Matrix3x3 R_odom_to_base(q_odom_to_base_);
+    R_odom_to_base.getRPY( inertial_roll_, inertial_pitch_, inertial_yaw_ );
+   
+    const tf::Transform T_odom_to_base(R_odom_to_base);
+    const tf::Vector3 _imu_rvel(imu_rvel[0], imu_rvel[1], imu_rvel[2]);
+    body_rvel_ =  T_odom_to_base * _imu_rvel;
+    
     //inertial_yaw_ =  get_yaw(q_odom_to_base_);
     //pitch_ = get_pitch(q_odom_to_base_);
     pitch_dot_ = imu_rvel[2]; // FIXME, I get rz???

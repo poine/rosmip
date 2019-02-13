@@ -1,3 +1,5 @@
+#ifndef ROSMIP_CONTROL__LEGACY_CTL_LAW_H_
+#define ROSMIP_CONTROL__LEGACY_CTL_LAW_H_
 
 #ifdef USE_ROBOTICSCAPE
 #include "roboticscape.h"
@@ -35,8 +37,8 @@ namespace rosmip_controller {
     struct setpoint_t setpoint_;
 
     struct core_state_t {
-      float wheelAngleR;	// wheel rotation relative to body
       float wheelAngleL;
+      float wheelAngleR;	// wheel rotation relative to body
       float theta; 		// body angle radians
       float phi;		// average wheel angle in global frame
       float gamma;		// body turn (yaw) angle radians
@@ -54,3 +56,5 @@ namespace rosmip_controller {
   };
   
 }
+
+#endif // ROSMIP_CONTROL__LEGACY_CTL_LAW_H_

@@ -14,7 +14,6 @@
 #include <pluginlib/class_list_macros.h>
 
 #include <geometry_msgs/TwistStamped.h>
-#include <rosmip_control/debug.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/tfMessage.h>
 #include <tf/LinearMath/Quaternion.h>
@@ -32,6 +31,7 @@
 #include "rosmip_control/publisher.h"
 #include "rosmip_control/legacy_ctl_law.h"
 #include "rosmip_control/sfb_ctl_law.h"
+//#include <rosmip_control/debug.h>
 
 namespace rosmip_controller {
 
@@ -58,9 +58,10 @@ namespace rosmip_controller {
     //hardware_interface::DsmHandle dsm_;
  
     /// Publishers
-    std::shared_ptr<realtime_tools::RealtimePublisher<rosmip_control::debug> > debug_pub_;
+    ///std::shared_ptr<realtime_tools::RealtimePublisher<rosmip_control::debug> > debug_pub_;
     rosmip_controller::OdomPublisher    odom_publisher_;
     rosmip_controller::DebugIOPublisher debug_io_publisher_;
+    rosmip_controller::DebugCtlPublisher debug_ctl_publisher_;
  
     /// Control Law
     rosmip_controller::LegacyCtlLaw ctl_law_;
@@ -72,7 +73,7 @@ namespace rosmip_controller {
     // we keep a pointer on it for non standard stuff like radio control and motors on/off
     RosMipHardwareInterface* hw_;
 
-    void publishDebug(const ros::Time& now);
+    //void publishDebug(const ros::Time& now);
     void resetControlLaw();
     
   };
