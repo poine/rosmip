@@ -33,7 +33,7 @@ Static map rosmip pure pursuit demonstration.
   </include> 
   
 
-  
+
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/smocap.rviz" />
 
 </launch>

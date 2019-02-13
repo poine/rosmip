@@ -72,9 +72,8 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     controller_nh.getParam("odom_ws", odom_ws);
     controller_nh.getParam("odom_lr", odom_lr);
     controller_nh.getParam("odom_rr", odom_rr);
-    //ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::init... wheel param %f %f",  odom_lr, odom_rr, odom_ws);
+    ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::init... wheel param:" <<  odom_lr << " " << odom_rr << " " << odom_ws);
     state_est_.set_wheels_params(odom_lr, odom_ws);
-
     ctl_law_.init(odom_lr, odom_ws);
     sfb_ctl_law_.init();
     

@@ -120,9 +120,9 @@ namespace rosmip_controller {
     core_state_.wheelAngleL = lwa;//state_est.left_wheel_phi;
     core_state_.wheelAngleR = rwa;//state_est.right_wheel_phi;
     core_state_.phi = ((core_state_.wheelAngleL+core_state_.wheelAngleR)/2) + core_state_.theta;
-    core_state_.gamma = (core_state_.wheelAngleR-core_state_.wheelAngleL) * (WHEEL_RADIUS_M/WHEEL_TRACK_M);
+    core_state_.gamma = (core_state_.wheelAngleR-core_state_.wheelAngleL) * (wr_/ws_);
     //
-    setpoint_.phi_dot = lin_sp/WHEEL_RADIUS_M;//inp_mng.rt_commands_.lin/WHEEL_RADIUS_M;
+    setpoint_.phi_dot = lin_sp/wr_;//inp_mng.rt_commands_.lin/WHEEL_RADIUS_M;
     setpoint_.gamma_dot = ang_sp;//inp_mng.rt_commands_.ang;
     
     setpoint_.phi += setpoint_.phi_dot*DT;

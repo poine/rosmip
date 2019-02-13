@@ -2,10 +2,11 @@
 <launch>
 
   <arg name="enable_odom_tf" default="true" />
+  <arg name="config" default="rosmip_2" />
   
-  <rosparam command="load" file="$(find rosmip_control)/config/control_legacy.yaml" />
-
+  <rosparam command="load" file="$(find rosmip_control)/config/control_legacy_$(arg config).yaml" />
   <param name="rosmip_balance_controller/enable_odom_tf" value="$(arg enable_odom_tf)" />
+  
   <node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="rosmip_joint_publisher rosmip_imu_controller rosmip_balance_controller">
   </node>
 

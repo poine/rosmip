@@ -9,6 +9,7 @@
   <arg name="config" default="rosmip"/>
   <arg name="x0" default="0.5"/>
   <arg name="y0" default="0.5"/>
+  <!-- use this when not using a kalman filter for odometry fusion-->
   <arg name="controller_enable_odom_tf" default="true" />
        
   <!-- Launch Gazebo with the specified world -->
@@ -31,6 +32,7 @@
   <!-- start balance controller -->
   <include file="$(find rosmip_control)/launch/control_balance.launch">
     <arg name="enable_odom_tf" value="$(arg controller_enable_odom_tf)" />
+    <arg name="config" value="$(arg config)" />
   </include>
 
   <!-- Unpause Gazebo -->>

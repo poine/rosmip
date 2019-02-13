@@ -10,7 +10,7 @@
 namespace rosmip_controller {
 
   TippingMonitor::TippingMonitor():
-    status_(TIPPED),
+    status_(UPRIGHT),
     prev_status_(TIPPED),
     counter_(0) {
     

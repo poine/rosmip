@@ -38,7 +38,8 @@ class ANN(idp.ANN):
 if __name__ == '__main__':
     keras.backend.set_floatx('float64')
     np.set_printoptions(precision=2, linewidth=300)
-    filename, _type = '/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_07_random_2.npz', 'rosmip'
+    #filename, _type = '/mnt/mint18/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_07_random_2.npz', 'rosmip'
+    filename, _type = '/mnt/mint18/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_2_io_08_random_2.npz', 'rosmip'
     ds = iod.DataSet(filename, _type)
     #plot_dataset(ds)
     #plt.show()

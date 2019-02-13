@@ -4,21 +4,23 @@
   <!-- Dimensions -->
   <xacro:property name="PI" value="3.1415926535897931" />
 
-  <xacro:property name="chassis_length" value="0.035" />
-  <xacro:property name="chassis_width"  value="0.062" />
-  <xacro:property name="chassis_height" value="0.12" />
-  <xacro:property name="chassis_mass"   value="0.18" />
-  <xacro:property name="chassis_vert_offset" value="0.055" />
+  <!-- <xacro:property name="chassis_length" value="0.035" /> -->
+  <!-- <xacro:property name="chassis_width"  value="0.062" /> -->
+  <!-- <xacro:property name="chassis_height" value="0.12" /> -->
+  <!-- <xacro:property name="chassis_mass"   value="0.18" /> -->
+  <!-- <xacro:property name="chassis_vert_offset" value="0.055" /> -->
 
-  <xacro:property name="wheel_radius" value="0.03" />
-  <xacro:property name="wheel_width"  value="0.01" />
-  <xacro:property name="wheel_track"  value="0.083" />
-  <xacro:property name="wheel_mass"   value="0.01" />
-  <xacro:property name="wheel_joint_damping" value="0.01" />
-  <xacro:property name="wheel_joint_friction" value="0.01" />
+  <!-- <xacro:property name="wheel_radius" value="0.03" /> -->
+  <!-- <xacro:property name="wheel_width"  value="0.01" /> -->
+  <!-- <xacro:property name="wheel_track"  value="0.083" /> -->
+  <!-- <xacro:property name="wheel_mass"   value="0.01" /> -->
+  <!-- <xacro:property name="wheel_joint_damping" value="0.01" /> -->
+  <!-- <xacro:property name="wheel_joint_friction" value="0.01" /> -->
 
   <!-- appearance -->
-  <xacro:property name="high_definition_wheel_visual" value="true" />
+  <!-- <xacro:property name="high_definition_wheel_visual" value="true" /> -->
+  <xacro:property name="wheel_mesh_scale" value="${wheel_radius/0.03}" />
+  
   <xacro:property name="high_definition_body_visual" value="false" />
   <material name="light_grey"><color rgba="0.4 0.4 0.4 1.0" /></material>
   <material name="yellow"><color rgba="0.8 0.8 0.0 1.0" /></material>
@@ -45,8 +47,7 @@
 	<xacro:if value="${high_definition_wheel_visual}">
 	  <origin xyz="0 0 0" rpy="0 0 ${lr_reflect*PI/2}"/>
           <geometry>
-	    <!--<mesh filename="package://rosmip_description/meshes/wheel_test.dae"/>-->
-	    <mesh filename="package://rosmip_description/meshes/wheel_60.dae"/>
+	    <mesh scale="1. ${wheel_mesh_scale} ${wheel_mesh_scale}" filename="package://rosmip_description/meshes/wheel_60.dae"/>
           </geometry>
 	</xacro:if>
       </visual>

@@ -171,8 +171,11 @@ if __name__ == '__main__':
     #filename, _type = '/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_04_sine_2.npz', 'rosmip'
     #filename, _type = '/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_05_random_2.npz', 'rosmip'
     #filename, _type = '/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_06_step_misc.npz', 'rosmip'
-    filename, _type = '/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_07_random_2.npz', 'rosmip'
+    #filename, _type = '/mnt/mint18/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_07_random_2.npz', 'rosmip'
+    filename, _type = '/mnt/mint18/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_2_io_08_random_2.npz', 'rosmip'
     ds = iod.DataSet(filename, _type)
+    # there's a bug in here
+    # we use truth rather than IMU in simulation
     plot_dataset(ds)
     plt.show()
     ann = ANN()

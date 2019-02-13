@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot name="rosmip_1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:property name="chassis_length" value="0.035" />
+  <xacro:property name="chassis_width"  value="0.062" />
+  <xacro:property name="chassis_height" value="0.12" />
+  <xacro:property name="chassis_mass"   value="0.18" />
+  <xacro:property name="chassis_vert_offset" value="0.055" />
+
+  <xacro:property name="wheel_radius" value="0.03" />
+  <xacro:property name="wheel_width"  value="0.01" />
+  <xacro:property name="wheel_track"  value="0.083" />
+  <xacro:property name="wheel_mass"   value="0.01" />
+  <xacro:property name="wheel_joint_damping" value="0.01" />
+  <xacro:property name="wheel_joint_friction" value="0.01" />
+
+  <xacro:property name="high_definition_wheel_visual" value="true" />
+
+  <xacro:include filename="$(find rosmip_description)/urdf/rosmip.urdf.xacro" />
+  
+</robot>
