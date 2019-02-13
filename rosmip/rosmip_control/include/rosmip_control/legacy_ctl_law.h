@@ -15,7 +15,7 @@ namespace rosmip_controller {
   public:
     LegacyCtlLaw();
     void reset();
-    void init();
+    void init(double wr, double ws);
     void starting();
     //StateEstimator state_est, InputManager inp_mng); let's try not to get ROS involved to ease cython interface
     void update(double theta, double lwa, double rwa, double lin_sp, double ang_sp);
@@ -52,7 +52,7 @@ namespace rosmip_controller {
     struct core_state_t core_state_;
 
     rc_filter_t D1_, D2_, D3_;
- 
+    double wr_, ws_; // wheel radius and separation in m
   };
   
 }

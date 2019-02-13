@@ -4,7 +4,10 @@ project(rosmip_control)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 add_compile_options(-Wall -std=c++11)
-
+# remove warnings on arm (beaglebone)
+# https://stackoverflow.com/questions/48149323/what-does-the-the-gcc-warning-project-parameter-passing-for-x-changed-in-gcc-7
+add_compile_options(-faligned-new -Wno-psabi)
+  
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy

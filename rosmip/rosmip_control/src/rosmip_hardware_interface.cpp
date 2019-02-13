@@ -11,7 +11,7 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define GEARBOX                         75.81
 #define ENCODER_RES                     12
 #define WHEEL_RADIUS_M                  0.03
-#define TRACK_WIDTH_M                   0.0415
+//#define TRACK_WIDTH_M                   0.0415
 
 // electrical hookups
 #define MOTOR_CHANNEL_L                 2
@@ -37,7 +37,7 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define DSM_DEAD_ZONE			0.02
 
 
-// Global variable because Roboticscape guy refused to add a user supplied argument to their callback
+// Global variable because roboticscape guy refused to add a user supplied argument to their callback
 // Welcome to the 70s....
 static RosMipHardwareInterface* _foo_hw_interf = NULL;
 
@@ -168,6 +168,7 @@ bool RosMipHardwareInterface::start() {
   conf.gpio_interrupt_pin = GPIO_INT_PIN_PIN;
   conf.dmp_sample_rate = IMU_SAMPLE_RATE_HZ;
   conf.dmp_fetch_accel_gyro = true;
+  conf.orient = ORIENTATION_Z_UP;
   if(rc_mpu_initialize_dmp(&rc_mpu_data_, conf)){
     ROS_ERROR("in HomereHardwareInterface::start: can't talk to IMU, all hope is lost\n");
     return false;
@@ -273,7 +274,6 @@ void RosMipHardwareInterface::DSMCallback(void) {
  *******************************************************************************/
 #define _DEG2RAD(_D) _D/180.*M_PI
 void RosMipHardwareInterface::IMUCallback(void) {
-
 #ifdef USE_ROBOTICSCAPE
   // Called by rc IMU thread
   // imu_orientation is in the order of geometry_msg, ie x, y, z, w

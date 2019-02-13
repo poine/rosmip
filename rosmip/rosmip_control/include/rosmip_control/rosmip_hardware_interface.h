@@ -33,8 +33,8 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
   void switch_motors_on()  { rc_enable_motors(); }
   void switch_motors_off() { rc_disable_motors(); }
 #else
-  void switch_motors_on()  {rc_motor_init(); }
-  void switch_motors_off() {rc_motor_free_spin(0);}
+  void switch_motors_on()  {rc_motor_standby(0);}
+  void switch_motors_off() {rc_motor_standby(1);}
 #endif
   
   void DSMCallback(void);

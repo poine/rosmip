@@ -28,7 +28,9 @@
 
 namespace rosmip_controller {
 
-  LegacyCtlLaw::LegacyCtlLaw() {
+  LegacyCtlLaw::LegacyCtlLaw():
+    wr_(WHEEL_RADIUS_M),
+    ws_(WHEEL_TRACK_M) {
     // set up D1 Theta controller (inner loop)
 #ifdef USE_ROBOTICSCAPE
     float D1_num[] = D1_NUM;
@@ -88,8 +90,9 @@ namespace rosmip_controller {
   }
 
   
-  void LegacyCtlLaw::init() {
-
+  void LegacyCtlLaw::init(double wr, double ws) {
+    wr_ = wr;
+    ws_ = ws;
   }
 
   void LegacyCtlLaw::starting() {

@@ -68,14 +68,14 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     //dsm_ = d->getHandle("dsm");
     
     state_est_.init();
-
     double odom_ws, odom_lr, odom_rr;
     controller_nh.getParam("odom_ws", odom_ws);
     controller_nh.getParam("odom_lr", odom_lr);
     controller_nh.getParam("odom_rr", odom_rr);
+    //ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::init... wheel param %f %f",  odom_lr, odom_rr, odom_ws);
     state_est_.set_wheels_params(odom_lr, odom_ws);
 
-    ctl_law_.init();
+    ctl_law_.init(odom_lr, odom_ws);
     sfb_ctl_law_.init();
     
     inp_mng_.init(hw, controller_nh);
@@ -136,8 +136,14 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
   //ROS_INFO("  in RosMipLegacyController::update setpoint: %.2f %.2f %.2f %.2f %.2f",
   //   	     setpoint_.theta, setpoint_.phi, setpoint_.phi_dot, setpoint_.gamma, setpoint_.gamma_dot);
   //ROS_INFO("  in RosMipLegacyController::update duties:%f %f", core_state_.dutyL, core_state_.dutyR);
-  left_wheel_joint_.setCommand(ctl_law_.core_state_.dutyL);
-  right_wheel_joint_.setCommand(ctl_law_.core_state_.dutyR);
+  if (tip_mon_.status_ == UPRIGHT) {
+    left_wheel_joint_.setCommand(ctl_law_.core_state_.dutyL);
+    right_wheel_joint_.setCommand(ctl_law_.core_state_.dutyR);
+  }
+  else {
+    left_wheel_joint_.setCommand(0);
+    right_wheel_joint_.setCommand(0);
+  }
 #endif
 
   odom_publisher_.publish(state_est_, now);
@@ -187,7 +193,7 @@ void RosMipLegacyController::resetControlLaw() {
   rc_set_encoder_pos(ENCODER_CHANNEL_L,0);
   rc_set_encoder_pos(ENCODER_CHANNEL_R,0);
 #else
-  rc_motor_set(0,0.f);
+  rc_motor_set(0, 0.f);
   rc_encoder_write(ENCODER_CHANNEL_L,0);
   rc_encoder_write(ENCODER_CHANNEL_R,0);
 #endif // TODO
