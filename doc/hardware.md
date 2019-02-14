@@ -49,6 +49,16 @@
 ### Auto starting on boot
 I use [robot upstart](http://docs.ros.org/jade/api/robot_upstart/html/index.html)
 
+rosrun robot_upstart install --job rosmip --user poine rosmip_bringup/launch/robot.launch --logdir /home/poine/.ros/log
+
+Fix permissions:
+
+sudo vi /usr/sbin/rosmip-start
+
+# Punch it.
+#setuidgid poine roslaunch $LAUNCH_FILENAME &
+sudo -u poine /home/poine/start_rosmip.sh &
+PID=$!
 
 
 

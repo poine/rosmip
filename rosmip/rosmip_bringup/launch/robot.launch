@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="config" default="rosmip"/>
+  <arg name="config" default="rosmip_1"/>
 
   <node name="robot_hardware" pkg="rosmip_control" type="rosmip_hardware_interface_node" />
 
@@ -10,7 +10,9 @@
   </include>	       
 
   <!--<include file="$(find rosmip_control)/launch/control_balance.launch" /> -->
-  <include file="$(find rosmip_control)/launch/control_legacy.launch" />
+  <include file="$(find rosmip_control)/launch/control_legacy.launch">
+    <arg name="config" value="$(arg config)" />	
+  </include>
   
 
 </launch>
