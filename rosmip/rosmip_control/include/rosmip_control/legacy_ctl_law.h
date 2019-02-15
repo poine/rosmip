@@ -20,6 +20,7 @@ namespace rosmip_controller {
     //StateEstimator state_est, InputManager inp_mng); let's try not to get ROS involved to ease cython interface
     void update(double theta, double lwa, double rwa, double lin_sp, double ang_sp);
     void set_d1_params(const double gain, double* _num, double* _den);
+    void set_d3_params(const double kp, const double kd, const double ki, const double sat);
 
     
     double get_pwm_left()  {return core_state_.dutyL;}

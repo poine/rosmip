@@ -75,9 +75,10 @@ namespace rosmip_controller {
     rc_pid_filter(&D3_, D3_KP, D3_KI, D3_KD, 4*DT, DT);
     rc_enable_saturation(&D3_, -STEERING_INPUT_MAX, STEERING_INPUT_MAX);
 #else
-    D3_ = rc_filter_empty();
-    rc_filter_pid(&D3_, D3_KP, D3_KI, D3_KD, 4*DT, DT);
-    rc_filter_enable_saturation(&D3_, -STEERING_INPUT_MAX, STEERING_INPUT_MAX);
+    //D3_ = rc_filter_empty();
+    //rc_filter_pid(&D3_, D3_KP, D3_KI, D3_KD, 4*DT, DT);
+    //rc_filter_enable_saturation(&D3_, -STEERING_INPUT_MAX, STEERING_INPUT_MAX);
+    set_d3_params(D3_KP, D3_KD, D3_KI, STEERING_INPUT_MAX);
 #endif
   }
 
@@ -89,7 +90,12 @@ namespace rosmip_controller {
     rc_filter_enable_soft_start(&D1_, SOFT_START_SEC);
   }
 
-  
+  void LegacyCtlLaw::set_d3_params(const double kp, const double kd, const double ki, const double sat) {
+    D3_ = rc_filter_empty();
+    rc_filter_pid(&D3_, kp, ki, kd, 4*DT, DT);
+    rc_filter_enable_saturation(&D3_, -sat, sat);
+  }
+
   void LegacyCtlLaw::init(double wr, double ws) {
     wr_ = wr;
     ws_ = ws;

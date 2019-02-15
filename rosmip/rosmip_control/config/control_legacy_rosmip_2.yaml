@@ -17,6 +17,11 @@ rosmip_balance_controller:
     d1_den: [1.000, -1.481, 0.4812]
     d1_gain: 0.75
 
+    d3_kp: 0.7
+    d3_kd: 0.05
+    d3_ki: 0.3
+    d3_sat: 0.5
+
     pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
     twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
     

@@ -86,6 +86,14 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     ROS_INFO_STREAM_NAMED(__NAME, "    d1 gain: " << D1_gain);
     ctl_law_.init(odom_lr, odom_ws);
     ctl_law_.set_d1_params(D1_gain, D1_num, D1_den);
+
+    double D3_kp, D3_kd, D3_ki, D3_sat;
+    controller_nh.getParam("d3_kp", D3_kp);
+    controller_nh.getParam("d3_kd", D3_kd);
+    controller_nh.getParam("d3_ki", D3_ki);
+    controller_nh.getParam("d3_sat", D3_sat);
+    ROS_INFO_STREAM_NAMED(__NAME, "    d3 kp: " << D3_kp << " kd: " << D3_kd << " ki: " << D3_ki<< " sat: " << D3_sat);
+    ctl_law_.set_d3_params(D3_kp, D3_kd, D3_ki, D3_sat);
     
     state_est_.set_wheels_params(odom_lr, odom_ws);
     sfb_ctl_law_.init();
@@ -137,7 +145,8 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
   inp_mng_.update(now);
 
   //ctl_law_.update(state_est_, inp_mng_);
-  ctl_law_.update(state_est_.inertial_pitch_, state_est_.left_wheel_phi, state_est_.right_wheel_phi, inp_mng_.rt_commands_.lin, inp_mng_.rt_commands_.ang);
+  ctl_law_.update(state_est_.inertial_pitch_, state_est_.left_wheel_phi, state_est_.right_wheel_phi,
+		  inp_mng_.rt_commands_.lin, inp_mng_.rt_commands_.ang);
   //_sfb_ctl_law_.update();
   
   
