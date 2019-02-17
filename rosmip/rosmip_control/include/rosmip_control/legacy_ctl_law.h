@@ -1,11 +1,8 @@
 #ifndef ROSMIP_CONTROL__LEGACY_CTL_LAW_H_
 #define ROSMIP_CONTROL__LEGACY_CTL_LAW_H_
 
-#ifdef USE_ROBOTICSCAPE
-#include "roboticscape.h"
-#else
 #include "robotcontrol.h"
-#endif
+
 //#include "rosmip_control/state_estimation.h"
 //#include "rosmip_control/input_manager.h"
 
@@ -20,6 +17,7 @@ namespace rosmip_controller {
     //StateEstimator state_est, InputManager inp_mng); let's try not to get ROS involved to ease cython interface
     void update(double theta, double lwa, double rwa, double lin_sp, double ang_sp);
     void set_d1_params(const double gain, double* _num, double* _den);
+    void set_d2_params(const double gain, double* _num, double* _den);
     void set_d3_params(const double kp, const double kd, const double ki, const double sat);
 
     

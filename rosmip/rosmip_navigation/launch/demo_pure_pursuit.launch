@@ -17,7 +17,7 @@
   <!--  ****** Pure Pursuit controller *****  -->
   <!-- load configuration -->
   <rosparam command="load" file="$(find rosmip_navigation)/config/pure_pursuit_gazebo.yaml" />
-  <node name="pure_pursuit" pkg="rosmip_control" type="pp_guidance_node.py" output="screen">
+  <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
     <param name="~path_filename" value="$(arg path_filename)" />
     <!--<param name="~truth_topic" value="/rosmip/base_link_truth" />-->
     <param name="~truth_topic" value="/rosmip/ekf/pose" />

@@ -17,11 +17,11 @@ Static map rosmip navigation demonstration.
   <arg name="map_path"   value="$(find rosmip_worlds)/maps/$(arg world).yaml" />
   
   <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch" >
-    <arg name="controller_enable_odom_tf" value="true" />
+    <arg name="controller_enable_odom_tf" value="false" />
     <arg name="world_path" value="$(arg world_path)" />
   </include>
 
-  <include file="$(find rosmip_navigation)/launch/odom_map_navigation_demo.launch" >
+  <include file="$(find rosmip_navigation)/launch/move_base_demo.launch" >
     <arg name="map_path" value="$(arg map_path)" />
   </include> 
 

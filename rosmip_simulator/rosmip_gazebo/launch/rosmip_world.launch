@@ -6,7 +6,7 @@
   <arg name="world_path" default="$(find rosmip_gazebo)/worlds/empty.world" />
   <arg name="paused" default="true" />
   
-  <arg name="config" default="rosmip"/>
+  <arg name="config" default="rosmip_1"/>
   <arg name="x0" default="0.5"/>
   <arg name="y0" default="0.5"/>
   <!-- use this when not using a kalman filter for odometry fusion-->

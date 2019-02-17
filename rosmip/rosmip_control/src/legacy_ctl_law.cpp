@@ -32,54 +32,15 @@ namespace rosmip_controller {
     wr_(WHEEL_RADIUS_M),
     ws_(WHEEL_TRACK_M) {
     // set up D1 Theta controller (inner loop)
-#ifdef USE_ROBOTICSCAPE
-    float D1_num[] = D1_NUM;
-    float D1_den[] = D1_DEN;
-    D1_ = rc_empty_filter();
-    rc_alloc_filter_from_arrays(&D1_, D1_ORDER, DT, D1_num, D1_den);
-    D1_.gain = D1_GAIN;
-    rc_enable_saturation(&D1_, -1.0, 1.0);
-    rc_enable_soft_start(&D1_, SOFT_START_SEC);
-#else
-    double D1_num[] = D1_NUM;
-    double D1_den[] = D1_DEN;
-    //D1_ = rc_filter_empty();
-    //rc_filter_alloc_from_arrays(&D1_, DT, D1_num, D1_ORDER+1, D1_den, D1_ORDER+1);
-    //D1_.gain = D1_GAIN;
-    //rc_filter_enable_saturation(&D1_, -1.0, 1.0);
-    //rc_filter_enable_soft_start(&D1_, SOFT_START_SEC);
+    double D1_num[] = D1_NUM, D1_den[] = D1_DEN;
     set_d1_params(D1_GAIN, D1_num, D1_den);
-#endif
 
     // set up D2 Phi controller (outer loop)
-#ifdef USE_ROBOTICSCAPE
-    float D2_num[] = D2_NUM;
-    float D2_den[] = D2_DEN;
-    D2_ =rc_empty_filter();
-    rc_alloc_filter_from_arrays(&D2_, D2_ORDER, DT, D2_num, D2_den);
-    D2_.gain = D2_GAIN;
-    rc_enable_saturation(&D2_, -THETA_REF_MAX, THETA_REF_MAX);
-    rc_enable_soft_start(&D2_, SOFT_START_SEC);
-#else
-    double D2_num[] = D2_NUM;
-    double D2_den[] = D2_DEN;
-    D2_ = rc_filter_empty();
-    rc_filter_alloc_from_arrays(&D2_, DT, D2_num, D2_ORDER+1, D2_den, D2_ORDER+1);
-    D2_.gain = D2_GAIN;
-    rc_filter_enable_saturation(&D2_, -THETA_REF_MAX, THETA_REF_MAX);
-    rc_filter_enable_soft_start(&D2_, SOFT_START_SEC);
-#endif
+    double D2_num[] = D2_NUM, D2_den[] = D2_DEN;
+    set_d2_params(D2_GAIN, D2_num, D2_den);
+
     // set up D3 gamma (steering) controller
-#ifdef USE_ROBOTICSCAPE
-    D3_ =rc_empty_filter();
-    rc_pid_filter(&D3_, D3_KP, D3_KI, D3_KD, 4*DT, DT);
-    rc_enable_saturation(&D3_, -STEERING_INPUT_MAX, STEERING_INPUT_MAX);
-#else
-    //D3_ = rc_filter_empty();
-    //rc_filter_pid(&D3_, D3_KP, D3_KI, D3_KD, 4*DT, DT);
-    //rc_filter_enable_saturation(&D3_, -STEERING_INPUT_MAX, STEERING_INPUT_MAX);
     set_d3_params(D3_KP, D3_KD, D3_KI, STEERING_INPUT_MAX);
-#endif
   }
 
   void LegacyCtlLaw::set_d1_params(const double _gain, double* _num, double* _den) {
@@ -90,6 +51,14 @@ namespace rosmip_controller {
     rc_filter_enable_soft_start(&D1_, SOFT_START_SEC);
   }
 
+  void LegacyCtlLaw::set_d2_params(const double _gain, double* _num, double* _den) {
+    D2_ = rc_filter_empty();
+    rc_filter_alloc_from_arrays(&D2_, DT, _num, D2_ORDER+1, _den, D2_ORDER+1);
+    D2_.gain = _gain;
+    rc_filter_enable_saturation(&D2_, -THETA_REF_MAX, THETA_REF_MAX);
+    rc_filter_enable_soft_start(&D2_, SOFT_START_SEC);
+  }
+  
   void LegacyCtlLaw::set_d3_params(const double kp, const double kd, const double ki, const double sat) {
     D3_ = rc_filter_empty();
     rc_filter_pid(&D3_, kp, ki, kd, 4*DT, DT);
@@ -106,15 +75,10 @@ namespace rosmip_controller {
   }
 
   void LegacyCtlLaw::reset() {
-#ifdef USE_ROBOTICSCAPE
-    rc_reset_filter(&D1_);
-    rc_reset_filter(&D2_);
-    rc_reset_filter(&D3_);
-#else
     rc_filter_reset(&D1_);
     rc_filter_reset(&D2_);
     rc_filter_reset(&D3_);
-#endif
+
     setpoint_.theta = 0.0f;
     setpoint_.phi   = 0.0f;
     setpoint_.gamma = 0.0f;
@@ -132,27 +96,14 @@ namespace rosmip_controller {
     setpoint_.gamma_dot = ang_sp;//inp_mng.rt_commands_.ang;
     
     setpoint_.phi += setpoint_.phi_dot*DT;
-#ifdef USE_ROBOTICSCAPE
-    core_state_.d2_u = rc_march_filter(&D2_, setpoint_.phi-core_state_.phi);
-#else
     core_state_.d2_u = rc_filter_march(&D2_, setpoint_.phi-core_state_.phi);
-#endif
     setpoint_.theta = core_state_.d2_u;
-    //setpoint_.theta = 0.; // FIXME
-    
     
     //D1.gain = D1_GAIN * V_NOMINAL/cstate.vBatt;
-#ifdef USE_ROBOTICSCAPE
-    core_state_.d1_u = rc_march_filter(&D1_, (setpoint_.theta-core_state_.theta));
-#else
     core_state_.d1_u = rc_filter_march(&D1_, (setpoint_.theta-core_state_.theta));
-#endif  
     setpoint_.gamma += setpoint_.gamma_dot * DT;
-#ifdef USE_ROBOTICSCAPE
-    core_state_.d3_u = rc_march_filter(&D3_, setpoint_.gamma - core_state_.gamma);
-#else  
     core_state_.d3_u = rc_filter_march(&D3_, setpoint_.gamma - core_state_.gamma);
-#endif  
+
     core_state_.dutyL = core_state_.d1_u - core_state_.d3_u;
     core_state_.dutyR = core_state_.d1_u + core_state_.d3_u;
 

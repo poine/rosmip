@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<robot name="rosmip_1" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- let's try a robot with different radius wheels -->
+<robot name="rosmip_3" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:property name="chassis_length" value="0.035" />
   <xacro:property name="chassis_width"  value="0.062" />
@@ -7,8 +9,8 @@
   <xacro:property name="chassis_mass"   value="0.18" />
   <xacro:property name="chassis_vert_offset" value="0.055" />
 
-  <xacro:property name="left_wheel_radius"  value="0.03" />
-  <xacro:property name="right_wheel_radius" value="0.03" />
+  <xacro:property name="left_wheel_radius"  value="0.0375" />
+  <xacro:property name="right_wheel_radius" value="0.0425" />
   <xacro:property name="wheel_width"  value="0.01" />
   <xacro:property name="wheel_track"  value="0.083" />
   <xacro:property name="wheel_mass"   value="0.01" />
@@ -18,5 +20,6 @@
   <xacro:property name="high_definition_wheel_visual" value="true" />
 
   <xacro:include filename="$(find rosmip_description)/urdf/rosmip.urdf.xacro" />
+
   
 </robot>

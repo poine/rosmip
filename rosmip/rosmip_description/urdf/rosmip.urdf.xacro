@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <robot name="rosmip" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  
+  
   <!-- Dimensions -->
   <xacro:property name="PI" value="3.1415926535897931" />
 
@@ -19,7 +21,6 @@
 
   <!-- appearance -->
   <!-- <xacro:property name="high_definition_wheel_visual" value="true" /> -->
-  <xacro:property name="wheel_mesh_scale" value="${wheel_radius/0.03}" />
   
   <xacro:property name="high_definition_body_visual" value="false" />
   <material name="light_grey"><color rgba="0.4 0.4 0.4 1.0" /></material>
@@ -33,8 +34,8 @@
   <xacro:include filename="$(find rosmip_description)/urdf/inertias.urdf.xacro" />
   
   <!-- Wheels -->
-  <xacro:macro name="wheel" params="prefix lr_reflect *joint_pose">
-
+  <xacro:macro name="wheel" params="prefix wheel_radius lr_reflect *joint_pose">
+    <xacro:property name="wheel_mesh_scale" value="${wheel_radius/0.03}" />
     <link name="${prefix}_wheel_link">
       <visual>
 	<xacro:unless value="${high_definition_wheel_visual}">
@@ -90,10 +91,10 @@
 
 
 
-  <xacro:wheel prefix="left" lr_reflect="1">
+  <xacro:wheel prefix="left" wheel_radius="${left_wheel_radius}" lr_reflect="1">
     <origin xyz="0 ${(wheel_track-wheel_width)/2} 0" rpy="0 0 0" />
   </xacro:wheel>
-  <xacro:wheel prefix="right"  lr_reflect="-1">
+  <xacro:wheel prefix="right"  wheel_radius="${right_wheel_radius}" lr_reflect="-1">
     <origin xyz="0 ${-(wheel_track-wheel_width)/2} 0" rpy="0 0 0" />
   </xacro:wheel>
 

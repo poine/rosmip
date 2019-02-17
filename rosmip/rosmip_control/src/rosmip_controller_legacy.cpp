@@ -73,6 +73,7 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     controller_nh.getParam("odom_lr", odom_lr);
     controller_nh.getParam("odom_rr", odom_rr);
     ROS_INFO_STREAM_NAMED(__NAME, "    wheels param: " <<  odom_lr << " " << odom_rr << " " << odom_ws);
+    ctl_law_.init(odom_lr, odom_ws);
 
     // Get params for control law
     XmlRpc::XmlRpcValue d1_mun_list, d1_den_list; double D1_gain;
@@ -84,8 +85,18 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     ROS_INFO_STREAM_NAMED(__NAME, "    d1 num: " << D1_num[0] << ", " << D1_num[1] << ", " << D1_num[2]);
     ROS_INFO_STREAM_NAMED(__NAME, "    d1 den: " << D1_den[0] << ", " << D1_den[1] << ", " << D1_den[2]);
     ROS_INFO_STREAM_NAMED(__NAME, "    d1 gain: " << D1_gain);
-    ctl_law_.init(odom_lr, odom_ws);
     ctl_law_.set_d1_params(D1_gain, D1_num, D1_den);
+
+    XmlRpc::XmlRpcValue d2_mun_list, d2_den_list; double D2_gain;
+    controller_nh.getParam("d2_num", d2_mun_list);
+    controller_nh.getParam("d2_den", d2_den_list);
+    double D2_num[] = {static_cast<double>(d2_mun_list[0]), static_cast<double>(d2_mun_list[1]), static_cast<double>(d2_mun_list[2])};
+    double D2_den[] = {static_cast<double>(d2_den_list[0]), static_cast<double>(d2_den_list[1]), static_cast<double>(d2_den_list[2])};
+    controller_nh.getParam("d2_gain", D2_gain);
+    ROS_INFO_STREAM_NAMED(__NAME, "    d2 num: " << D2_num[0] << ", " << D2_num[1] << ", " << D2_num[2]);
+    ROS_INFO_STREAM_NAMED(__NAME, "    d2 den: " << D2_den[0] << ", " << D2_den[1] << ", " << D2_den[2]);
+    ROS_INFO_STREAM_NAMED(__NAME, "    d2 gain: " << D2_gain);
+    ctl_law_.set_d2_params(D2_gain, D2_num, D2_den);
 
     double D3_kp, D3_kd, D3_ki, D3_sat;
     controller_nh.getParam("d3_kp", D3_kp);

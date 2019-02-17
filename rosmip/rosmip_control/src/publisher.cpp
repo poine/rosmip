@@ -211,7 +211,7 @@ namespace rosmip_controller {
     if (last_state_publish_time_ + publish_period_ < now) {
       last_state_publish_time_ += publish_period_;
 
-#if 0
+#if 1
       const geometry_msgs::Quaternion orientation(tf::createQuaternionMsgFromYaw(se.odom_yaw_));
 #else
       geometry_msgs::Quaternion orientation;
