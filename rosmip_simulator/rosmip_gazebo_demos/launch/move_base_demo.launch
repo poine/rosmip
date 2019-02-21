@@ -14,17 +14,18 @@ Static map rosmip navigation demonstration.
   <arg name="world" default="maze_2"/>
   
   <arg name="world_path" value="$(find rosmip_worlds)/worlds/$(arg world).world" />
-  <arg name="map_path"   value="$(find rosmip_worlds)/maps/$(arg world).yaml" />
+  <arg name="map_path"   default="$(find rosmip_worlds)/maps/$(arg world).yaml" />
   
   <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch" >
     <arg name="controller_enable_odom_tf" value="false" />
     <arg name="world_path" value="$(arg world_path)" />
+    <arg name="gui" value="false" />
   </include>
 
   <include file="$(find rosmip_navigation)/launch/move_base_demo.launch" >
     <arg name="map_path" value="$(arg map_path)" />
   </include> 
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/map_navigation.rviz" />
+  <!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/map_navigation.rviz" />-->
 
 </launch>

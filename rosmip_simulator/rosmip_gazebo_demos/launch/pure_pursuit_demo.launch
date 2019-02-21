@@ -15,21 +15,21 @@ Static map rosmip pure pursuit demonstration.
   <arg name="world" default="empty"/>
   
   <arg name="world_path" value="$(find rosmip_worlds)/worlds/$(arg world).world" />
-  <arg name="map_path"   value="$(find rosmip_worlds)/maps/$(arg world).yaml" />
-  
+  <arg name="map_path"   default="$(find rosmip_worlds)/maps/track_ethz_dual.yaml" />
+
+  <arg name="path_filename" default="$(find two_d_guidance)/paths/test/track_ethz_dual_01.npz" />
+  <arg name="vel_setpoint" default="0.5" />
+
   <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch" >
     <arg name="controller_enable_odom_tf" value="false" />
     <arg name="world_path" value="$(arg world_path)" />
   </include>
 
 
-  <!--
-  <include file="$(find rosmip_navigation)/launch/static_map_navigation_demo.launch" >
-    <arg name="map_path" value="$(arg map_path)" />
-  </include> 
-  -->
   <include file="$(find rosmip_navigation)/launch/demo_pure_pursuit.launch" >
-    <!--<arg name="map_path" value="$(arg map_path)" />-->
+    <arg name="map" value="$(arg map_path)" />
+    <arg name="path_filename" value="$(arg path_filename)" />
+    <arg name="vel_setpoint" value="$(arg vel_setpoint)" />
   </include> 
   
 

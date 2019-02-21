@@ -2,8 +2,8 @@
 <launch>
 
   <arg name="map" default="$(find rosmip_worlds)/maps/track_ethz_dual.yaml" />
-  <arg name="path_filename" default="$(find rosmip_control)/paths/track_ethz_dual_01.npz" />
 
+  <arg name="path_filename" default="$(find two_d_guidance)/paths/test/track_ethz_dual_01.npz" />
   <arg name="vel_setpoint" default="0.5" />
   
   <!--  ****** Maps *****  -->

@@ -1,4 +1,15 @@
+
+
+
 # hardware
+
+
+# 3D printed frame
+
+   * motors are slidings in and out, block them
+   * we could use conical head screws and have the inprint of the screw printed
+   * make hooks for wires
+   * secure battery better
 
 
 ## Robot Installation
