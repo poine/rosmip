@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <launch>
+
+  <arg name="config" default="ekf"/>
+  
   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true" output="screen">
-    <rosparam command="load" file="$(find rosmip_navigation)/params/ekf.yaml" />
+    <rosparam command="load" file="$(find rosmip_navigation)/params/$(arg config).yaml" />
 
    <!--  Placeholder for output topic remapping
     <remap from="accel/filtered" to=""/>
@@ -9,4 +12,8 @@
    <remap from="odometry/filtered" to="rosmip/ekf/pose"/>
    <remap from="/cmd_vel" to="/rosmip_balance_controller/cmd_vel"/>
   </node>
+
+
+  <node pkg="tf" type="static_transform_publisher" name="world_to_map_tf" args="0 0 0 0 0 0 /world /map 100"/>
+  
 </launch>

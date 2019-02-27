@@ -10,8 +10,6 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 // mechanics
 #define GEARBOX                         75.81
 #define ENCODER_RES                     12
-#define WHEEL_RADIUS_M                  0.03
-//#define TRACK_WIDTH_M                   0.0415
 
 // electrical hookups
 #define MOTOR_CHANNEL_L                 2
@@ -54,7 +52,8 @@ RosMipHardwareInterface::RosMipHardwareInterface():
   dsm_ok_(false),
   turn_stick_(0.),
   drive_stick_(0.),
-  mode_switch_(0.)
+  mode_switch_(0.),
+  gear_enc_res_(GEARBOX*ENCODER_RES)
 {
   ROS_INFO_STREAM_NAMED(__NAME, "in RosMipHardwareInterface::RosMipHardwareInterface...");
 

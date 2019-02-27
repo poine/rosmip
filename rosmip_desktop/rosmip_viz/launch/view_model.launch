@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="config" default="rosmip"/>
+  <arg name="config" default="rosmip_1"/>
 
   <include file="$(find rosmip_description)/launch/description.launch">
     <arg name="config" value="$(arg config)" />

@@ -3,6 +3,19 @@
 
 # hardware
 
+  rosmip1: 
+     - motors: https://www.robotshop.com/en/6v-pololu-751-micro-metal-gearmotor-extended-motor-shaft.html
+     - encoders: https://www.robotshop.com/en/12-cpr-magnetic-encoder-pair-kit-micro-metal-hpcb-compatible.html
+     - wheels: https://www.robotshop.com/en/pololu-wheel-60-8mm-black-pair.html
+
+  rosmip2: 
+     motors+enc: https://www.robotshop.com/en/6v-1001-155rpm-micro-metal-gearmotor-encoder.html
+  
+  in box:
+     -https://www.robotshop.com/eu/en/6v-pololu-1001-micro-metal-gearmotor-extended-motor-shaft.html
+ 
+
+
 
 # 3D printed frame
 
@@ -35,6 +48,10 @@
   - https://github.com/StrawsonDesign/librobotcontrol
   - clone / install script
   - test with rc_xxx
+
+  -remove old bootloader in emmc: sudo dd if=/dev/zero of=/dev/mmcblk1 bs=1M count=10
+  see https://github.com/StrawsonDesign/librobotcontrol/issues/123
+  
 
 ### rosmip firmware
 

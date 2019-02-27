@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-import numpy as np, matplotlib.pyplot as plt
+import sys, numpy as np, matplotlib.pyplot as plt
 import keras, control
 
 import pdb
@@ -141,13 +141,13 @@ def plot_dataset(_ds):
     fig = jpu.prepare_fig(window_title='IMU', figsize=figsize)
     ax = plt.subplot(2,1,1)
     plt.plot(_ds.enc_stamp, np.rad2deg(_ds.pitch), '.', label="IMU")
-    plt.plot(_ds.truth_stamp, np.rad2deg(truth_pitch[:,1]), label='truth')
+    #plt.plot(_ds.truth_stamp, np.rad2deg(truth_pitch[:,1]), label='truth')
     plt.plot(_ds.enc_stamp, np.rad2deg(integ_pitch), label='integrated IMU pitch dot')
     jpu. decorate(ax, title='Pitch', xlab='time in s', ylab='deg', legend=True)
         
     ax = plt.subplot(2,1,2)
     plt.plot(_ds.enc_stamp, np.rad2deg(_ds.pitch_dot), '.', label="IMU")
-    plt.plot(_ds.truth_vel_stamp, np.rad2deg(_ds.truth_rvel[:,1]), label='truth')
+    #plt.plot(_ds.truth_vel_stamp, np.rad2deg(_ds.truth_rvel[:,1]), label='truth')
     jpu. decorate(ax, title='Pitch dot', xlab='time in s', ylab='deg/s', legend=True)
     
 
@@ -173,6 +173,9 @@ if __name__ == '__main__':
     #filename, _type = '/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_06_step_misc.npz', 'rosmip'
     #filename, _type = '/mnt/mint18/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_io_07_random_2.npz', 'rosmip'
     filename, _type = '/mnt/mint18/home/poine/work/homere/homere_control/data/rosmip/gazebo/rosmip_2_io_08_random_2.npz', 'rosmip'
+    if len(sys.argv) >= 2:
+        filename = sys.argv[1]
+    
     ds = iod.DataSet(filename, _type)
     # there's a bug in here
     # we use truth rather than IMU in simulation

@@ -58,7 +58,6 @@ namespace rosmip_controller {
     //hardware_interface::DsmHandle dsm_;
  
     /// Publishers
-    ///std::shared_ptr<realtime_tools::RealtimePublisher<rosmip_control::debug> > debug_pub_;
     rosmip_controller::OdomPublisher    odom_publisher_;
     rosmip_controller::DebugIOPublisher debug_io_publisher_;
     rosmip_controller::DebugCtlPublisher debug_ctl_publisher_;

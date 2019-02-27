@@ -16,7 +16,10 @@
   <xacro:property name="wheel_joint_friction" value="0.01" />
 
   <xacro:property name="high_definition_wheel_visual" value="true" />
+  <xacro:property name="high_definition_body_visual" value="true" />
 
+  <xacro:property name="use_infrared_marker" value="false" />
+  
   <xacro:include filename="$(find rosmip_description)/urdf/rosmip.urdf.xacro" />
   
 </robot>

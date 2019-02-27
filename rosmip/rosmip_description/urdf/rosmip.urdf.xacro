@@ -21,14 +21,15 @@
 
   <!-- appearance -->
   <!-- <xacro:property name="high_definition_wheel_visual" value="true" /> -->
-  
-  <xacro:property name="high_definition_body_visual" value="false" />
+  <!-- <xacro:property name="high_definition_body_visual" value="false" /> -->
+
+
   <material name="light_grey"><color rgba="0.4 0.4 0.4 1.0" /></material>
   <material name="yellow"><color rgba="0.8 0.8 0.0 1.0" /></material>
   <material name="black"><color rgba="0.15 0.15 0.15 1.0" /></material>
 
   <!-- infrared marker -->
-  <xacro:property name="use_infrared_marker" value="true" />
+  <!-- <xacro:property name="use_infrared_marker" value="true" /> -->
   
   <!-- Inertia macros -->
   <xacro:include filename="$(find rosmip_description)/urdf/inertias.urdf.xacro" />
@@ -112,13 +113,15 @@
 
   <link name="chassis_link">
     <visual>
-      <origin xyz="0 0 ${chassis_vert_offset}" rpy="0 0 0"/>
 	<xacro:if value="${high_definition_body_visual}">
+	  <origin xyz="0.009 0 ${chassis_vert_offset-0.025}" rpy="${pi/2} 0 ${pi/2}"/>
 	  <geometry>
-	    <mesh filename="package://rosmip_description/meshes/body_minion.dae"/>
+	    <!--<mesh filename="package://rosmip_description/meshes/body_minion.dae"/>-->
+	    <mesh filename="package://rosmip_description/meshes/body_murat.dae"/>
 	  </geometry>
 	</xacro:if>
 	<xacro:unless value="${high_definition_body_visual}">
+	  <origin xyz="0 0 ${chassis_vert_offset}" rpy="0 0 0"/>
 	  <geometry>
 	    <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
 	  </geometry>
@@ -160,6 +163,27 @@
     
   </xacro:if>
     
+
+  <!-- Aruco Marker -->
+  <xacro:if value="${use_aruco_marker}">
+    <xacro:arg name="root_link" default="irm_link"/>
+    <xacro:arg name="marker_texture" default="Aruco14"/>
+    <xacro:include filename="$(find smocap)/urdf/chessboard.urdf.xacro" />
+    <xacro:property name="chsbrd_dx"   value="0.05" />
+    <xacro:property name="chsbrd_dy"   value="0.05" />
+    <xacro:property name="chsbrd_dz"   value="0.0025" />
+    <xacro:chessboard root_link="$(arg root_link)" texture="$(arg marker_texture)" static="false"/>
+
+    <xacro:property name="irm_z" value="0.098" />
+
+    <joint name="irm_joint" type="fixed">
+      <origin xyz="0.0025 0 ${irm_z}" rpy="0 0 0" />
+      <parent link="chassis_link"/>
+      <child link="irm_link" />
+    </joint>
+
+    
+  </xacro:if> 
   
   <!-- IMU -->
   <link name="imu_link"/>

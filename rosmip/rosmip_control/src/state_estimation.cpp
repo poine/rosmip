@@ -63,7 +63,7 @@ namespace rosmip_controller {
    
     const tf::Transform T_odom_to_base(R_odom_to_base);
     const tf::Vector3 _imu_rvel(imu_rvel[0], imu_rvel[1], imu_rvel[2]);
-    body_rvel_ =  T_odom_to_base * _imu_rvel;
+    body_rvel_ =  T_odom_to_base * _imu_rvel; /// WTF??? should be imu2body
     
     //inertial_yaw_ =  get_yaw(q_odom_to_base_);
     //pitch_ = get_pitch(q_odom_to_base_);

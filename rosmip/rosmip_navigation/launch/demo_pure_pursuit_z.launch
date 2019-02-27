@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!--  ****** Master sync for ray *****  -->
+  <node name="master_sync_ray" pkg="master_sync_fkie" type="master_sync" output="screen">
+    <param name="sync_hosts" value="ray"/>
+    <rosparam param="sync_topics"> ['/smocap/status', '/smocap/est_marker', '/smocap/cams_fov'] </rosparam>
+  </node>  
+
+
+  <arg name="map" default="$(find rosmip_worlds)/maps/expe_z/track_ethz_cam1_new.yaml" />
+  <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_new.npz" />
+  
+  <!--  ****** Maps *****  -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
+    <param name="frame_id" value="/map"/>
+  </node>
+
+  <!--  ****** World to map transform publisher *****  -->
+  <!-- -->
+  <node name="world_to_map_publisher" pkg="tf" type="static_transform_publisher"
+        args="0 0 0  0 0 0 world map 100"/>
+  <!-- -->
+ 
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/pure_pursuit.rviz" />
+
+</launch>

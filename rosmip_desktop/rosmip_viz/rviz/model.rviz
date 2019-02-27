@@ -39,18 +39,46 @@ Visualization Manager:
     - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
-      Enabled: false
+      Enabled: true
       Links:
         All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        chassis_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        irm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
       Update Interval: 0
-      Value: false
+      Value: true
       Visual Enabled: true
     - Class: rviz/TF
       Enabled: true
@@ -67,8 +95,6 @@ Visualization Manager:
           Value: true
         left_wheel_link:
           Value: true
-        odom:
-          Value: true
         right_wheel_link:
           Value: true
       Marker Scale: 0.15000000596046448
@@ -77,24 +103,23 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        odom:
-          base_link:
-            chassis_link:
-              irm_link:
-                {}
-              left_wheel_link:
-                {}
-              right_wheel_link:
-                {}
-            imu_link:
+        base_link:
+          chassis_link:
+            irm_link:
               {}
+            left_wheel_link:
+              {}
+            right_wheel_link:
+              {}
+          imu_link:
+            {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: odom
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -136,4 +161,4 @@ Window Geometry:
     collapsed: false
   Width: 1550
   X: 645
-  Y: 106
+  Y: 76

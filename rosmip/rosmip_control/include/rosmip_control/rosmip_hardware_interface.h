@@ -68,6 +68,8 @@ class RosMipHardwareInterface : public hardware_interface::RobotHW
 #else
   rc_mpu_data_t rc_mpu_data_;
 #endif
+
+  double gear_enc_res_;
   
 };
 
