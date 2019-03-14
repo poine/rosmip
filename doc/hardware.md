@@ -51,6 +51,7 @@
 
   -remove old bootloader in emmc: sudo dd if=/dev/zero of=/dev/mmcblk1 bs=1M count=10
   see https://github.com/StrawsonDesign/librobotcontrol/issues/123
+  edit uEnv to change overlay for remote proc pru - pru stuff need to run root
   
 
 ### rosmip firmware

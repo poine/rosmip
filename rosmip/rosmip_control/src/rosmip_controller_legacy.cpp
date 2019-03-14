@@ -139,9 +139,11 @@ void RosMipLegacyController::starting(const ros::Time& now) {
  *******************************************************************************/
 void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& dt) {
   // state estimation
-  state_est_.update(now, imu_.getAngularVelocity(), imu_.getOrientation(), left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition());
+  state_est_.update(now, imu_.getAngularVelocity(), imu_.getOrientation(),
+		    left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition());
 
-  tip_mon_.update(state_est_.inertial_pitch_ + THETA_0);
+  //tip_mon_.update(state_est_.inertial_pitch_ + THETA_0);
+  tip_mon_.update(state_est_.vert_body_);
  
   if (tip_mon_.prev_status_ == TIPPED and tip_mon_.status_ == UPRIGHT) {
     resetControlLaw();
@@ -193,42 +195,12 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
  *
  *
  *******************************************************************************/
-// void RosMipLegacyController::publishDebug(const ros::Time& now) {
-//   if (debug_pub_->trylock()) {
-//     //debug_pub_->msg_.header.stamp = now;
-//     debug_pub_->msg_.gamma = ctl_law_.core_state_.gamma;
-//     debug_pub_->msg_.theta = ctl_law_.core_state_.theta;
-//     //debug_pub_->msg_.thetad = thetad;
-//     debug_pub_->msg_.phiL = ctl_law_.core_state_.wheelAngleL;
-//     debug_pub_->msg_.phiR = ctl_law_.core_state_.wheelAngleR;
-//     //debug_pub_->msg_.phidL = phidL;
-//     //debug_pub_->msg_.phidR = phidR;
-//     debug_pub_->msg_.gamma_sp = ctl_law_.setpoint_.gamma;
-//     debug_pub_->msg_.theta_sp = ctl_law_.setpoint_.theta;
-//     debug_pub_->msg_.phiL_sp = ctl_law_.setpoint_.phi;
-//     debug_pub_->msg_.phiR_sp = ctl_law_.setpoint_.gamma;
-//     debug_pub_->msg_.tauL = ctl_law_.core_state_.dutyL;
-//     debug_pub_->msg_.tauR = ctl_law_.core_state_.dutyR;
-//     debug_pub_->unlockAndPublish();
-//   }
-// }
-
-
-/*******************************************************************************
- *
- *
- *******************************************************************************/
 void RosMipLegacyController::resetControlLaw() {
+  ROS_INFO_STREAM_NAMED(__NAME, "in RosMipLegacyController::resetControlLaw...");
   ctl_law_.reset();
-#ifdef USE_ROBOTICSCAPE
-  rc_set_motor_all(0.0f);
-  rc_set_encoder_pos(ENCODER_CHANNEL_L,0);
-  rc_set_encoder_pos(ENCODER_CHANNEL_R,0);
-#else
   rc_motor_set(0, 0.f);
-  rc_encoder_write(ENCODER_CHANNEL_L,0);
-  rc_encoder_write(ENCODER_CHANNEL_R,0);
-#endif // TODO
+  rc_encoder_write(ENCODER_CHANNEL_L, 0);
+  rc_encoder_write(ENCODER_CHANNEL_R, 0);
 }
 
 /*******************************************************************************
