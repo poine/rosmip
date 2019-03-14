@@ -5,8 +5,9 @@
 #define __NAME "rosmip_hardware_interface"
 const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_joint"};
 
+#define ROSMIP1
 
-
+#ifdef ROSMIP1
 // mechanics
 #define GEARBOX                         75.81
 #define ENCODER_RES                     12
@@ -20,6 +21,25 @@ const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_join
 #define ENCODER_CHANNEL_R               1
 #define ENCODER_POLARITY_L             -1
 #define ENCODER_POLARITY_R              1
+#endif
+
+
+#ifdef ROSMIP2
+// mechanics
+#define GEARBOX                         100
+#define ENCODER_RES                     27.73
+
+// electrical hookups
+#define MOTOR_CHANNEL_L                 1
+#define MOTOR_CHANNEL_R                 2
+#define MOTOR_POLARITY_L                1
+#define MOTOR_POLARITY_R               -1
+#define ENCODER_CHANNEL_L               1
+#define ENCODER_CHANNEL_R               2
+#define ENCODER_POLARITY_L              1
+#define ENCODER_POLARITY_R             -1
+#endif
+
 
 // IMU
 #define IMU_SAMPLE_RATE_HZ 100
