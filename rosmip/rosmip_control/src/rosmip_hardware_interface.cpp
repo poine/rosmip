@@ -286,7 +286,7 @@ int main(int argc, char** argv)
   else {
     ROS_INFO_STREAM_NAMED(__NAME, "  enc_mult not found " << enc_mult);
   }
-  return 0;
+  //return 0;
   
   RosMipHardwareInterface hw;
   if (!hw.start()) {

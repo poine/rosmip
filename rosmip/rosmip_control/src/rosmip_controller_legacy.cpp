@@ -142,7 +142,6 @@ void RosMipLegacyController::update(const ros::Time& now, const ros::Duration& d
   state_est_.update(now, imu_.getAngularVelocity(), imu_.getOrientation(),
 		    left_wheel_joint_.getPosition(), right_wheel_joint_.getPosition());
 
-  //tip_mon_.update(state_est_.inertial_pitch_ + THETA_0);
   tip_mon_.update(state_est_.vert_body_);
  
   if (tip_mon_.prev_status_ == TIPPED and tip_mon_.status_ == UPRIGHT) {

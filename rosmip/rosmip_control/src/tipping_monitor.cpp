@@ -17,37 +17,6 @@ namespace rosmip_controller {
     max_bank_ = cos(MAX_THETA_FOR_TIPPING);
   }
 
-  void TippingMonitor::update(double theta) {
-    prev_status_ = status_;
-    //ROS_INFO("status %d %d", prev_status_, status_);
-    switch (status_) {
-    case TIPPED:
-      if (fabs(theta) <  MAX_THETA_FOR_TIPPING) {
-	counter_ += 1;
-	if (counter_ > MIN_TIME_FOR_UPRIGHT) {
-	  status_ = UPRIGHT;
-	  ROS_INFO("switching to UPRIGHT");
-	  fflush(stdout); 
-	}
-      }
-      else
-	counter_ = 0;
-      break;
-    case UPRIGHT:
-      if (fabs(theta) >  MAX_THETA_FOR_TIPPING) {
-	counter_ += 1;
-    	if (counter_ > MAX_TIME_FOR_TIPPING) {
-	  status_ = TIPPED;
-	  ROS_INFO("switching to TIPPED");
-	  fflush(stdout); 
-	}
-      }
-      else
-	counter_ = 0;
-      break;
-    }
-  }
-
 
   void TippingMonitor::update(tf::Vector3 vert_body) {
     

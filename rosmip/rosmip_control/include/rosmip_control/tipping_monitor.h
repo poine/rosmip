@@ -12,7 +12,6 @@ namespace rosmip_controller {
   public:
     TippingMonitor();
 
-    void update(double theta);
     void update(tf::Vector3 vert_body);
  
     enum TippingStatus status_;
