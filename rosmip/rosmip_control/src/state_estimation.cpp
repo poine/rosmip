@@ -62,14 +62,14 @@ namespace rosmip_controller {
     R_odom_to_base.getRPY( inertial_roll_, inertial_pitch_, inertial_yaw_ );
    
     const tf::Transform T_odom_to_base(R_odom_to_base);
-    const tf::Vector3 _vert_odom(0, 0, 1);
-    vert_body_ =  T_odom_to_base * _vert_odom; 
+    //const tf::Vector3 _vert_odom(0, 0, 1);
+    vert_body_ =  T_odom_to_base * tf::Vector3(0, 0, 1); 
     const tf::Vector3 _imu_rvel(imu_rvel[0], imu_rvel[1], imu_rvel[2]);
     body_rvel_ =  T_odom_to_base * _imu_rvel; /// WTF??? should be imu2body
     
     //inertial_yaw_ =  get_yaw(q_odom_to_base_);
     //pitch_ = get_pitch(q_odom_to_base_);
-    pitch_dot_ = imu_rvel[2]; // FIXME, I get rz???
+    pitch_dot_ = imu_rvel[0]; // FIXME, I get rz???
     //pitch_dot_ = imu_rvel[0];
 
     // Store current wheel angles
