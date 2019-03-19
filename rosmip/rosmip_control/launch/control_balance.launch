@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
+
+<!-- this is unused for now, control_legacy.launch is used -->
 <launch>
 
   <arg name="enable_odom_tf" default="true" />

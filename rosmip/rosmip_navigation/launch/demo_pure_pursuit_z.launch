@@ -2,14 +2,19 @@
 <launch>
 
   <!--  ****** Master sync for ray *****  -->
-  <node name="master_sync_ray" pkg="master_sync_fkie" type="master_sync" output="screen">
-    <param name="sync_hosts" value="ray"/>
-    <rosparam param="sync_topics"> ['/smocap/status', '/smocap/est_marker', '/smocap/cams_fov'] </rosparam>
-  </node>  
+  <arg name="run_multimaster" default="false"/>
+  <group if="$(arg run_multimaster)">
+    <node name="master_sync_ray" pkg="master_sync_fkie" type="master_sync" output="screen">
+      <param name="sync_hosts" value="ray"/>
+      <rosparam param="sync_topics"> ['/smocap/status', '/smocap/est_marker', '/smocap/cams_fov'] </rosparam>
+    </node>
+  </group>
 
 
   <arg name="map" default="$(find rosmip_worlds)/maps/expe_z/track_ethz_cam1_new.yaml" />
-  <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_new.npz" />
+  <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_cw.npz" />
+  <arg name="vel_setpoint" default="0.2"/>
+  <arg name="look_ahead" default="0.4"/>
   
   <!--  ****** Maps *****  -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
@@ -21,7 +26,22 @@
   <node name="world_to_map_publisher" pkg="tf" type="static_transform_publisher"
         args="0 0 0  0 0 0 world map 100"/>
   <!-- -->
- 
+
+  <!--  ****** Navigation Filter *****  -->
+  <include file="$(find rosmip_navigation)/launch/robot_localization_ekf.launch">
+    <param name="config" value="ekf_smocap"/>
+  </include>
+
+  <!--  ****** Pure pursuit controller *****  -->
+  <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
+    <param name="twist_cmd_topic" value="rosmip_balance_controller/cmd_vel"/>
+    <param name="robot_pose_topic" value="/smocap/est_marker" />
+    <param name="path_filename" value="$(arg path_filename)"/>
+    <param name="vel_setpoint" value="$(arg vel_setpoint)"/>
+    <param name="look_ahead" value="$(arg look_ahead)"/>
+  </node>
+  
+  <!--  ****** Rviz *****  -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/pure_pursuit.rviz" />
 
 </launch>

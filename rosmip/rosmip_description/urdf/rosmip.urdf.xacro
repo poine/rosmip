@@ -23,6 +23,8 @@
   <!-- <xacro:property name="high_definition_wheel_visual" value="true" /> -->
   <!-- <xacro:property name="high_definition_body_visual" value="false" /> -->
 
+  <xacro:include filename="$(find common_robots)/urdf/sensors.urdf.xacro" />
+  
 
   <material name="light_grey"><color rgba="0.4 0.4 0.4 1.0" /></material>
   <material name="yellow"><color rgba="0.8 0.8 0.0 1.0" /></material>
@@ -117,7 +119,8 @@
 	  <origin xyz="0.009 0 ${chassis_vert_offset-0.025}" rpy="${pi/2} 0 ${pi/2}"/>
 	  <geometry>
 	    <!--<mesh filename="package://rosmip_description/meshes/body_minion.dae"/>-->
-	    <mesh filename="package://rosmip_description/meshes/body_murat.dae"/>
+	    <!--<mesh filename="package://rosmip_description/meshes/body_murat.dae"/>-->
+	    <mesh filename="package://rosmip_description/meshes/rosmip_chassis.dae"/>
 	  </geometry>
 	</xacro:if>
 	<xacro:unless value="${high_definition_body_visual}">
@@ -146,7 +149,6 @@
   -->
 
   <!-- Infrared Marker -->
-  
   <xacro:if value="${use_infrared_marker}">
      <xacro:arg name="root_link" default="irm_link"/>
      <xacro:arg name="mesh" default="ir_marker.dae"/>
@@ -192,6 +194,13 @@
     <parent link="base_link" />
     <child link="imu_link" />
   </joint>
+  <!-- Camera -->
+  <xacro:if value="${use_eachine_camera}">
+    <xacro:property name="cam_look_down_deg" value="0." />
+    <xacro:cs_camera_eachine>
+      <origin xyz="0.025 0 0.085" rpy="0 ${cam_look_down_deg/180*pi}} 0" />
+    </xacro:cs_camera_eachine>
+  </xacro:if>
 
   
   <gazebo reference="imu_link">

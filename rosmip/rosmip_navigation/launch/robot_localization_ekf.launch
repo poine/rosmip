@@ -9,11 +9,13 @@
    <!--  Placeholder for output topic remapping
     <remap from="accel/filtered" to=""/>
     -->
-   <remap from="odometry/filtered" to="rosmip/ekf/pose"/>
-   <remap from="/cmd_vel" to="/rosmip_balance_controller/cmd_vel"/>
+   <!--
+       <remap from="odometry/filtered" to="rosmip/ekf/pose"/>
+       <remap from="/cmd_vel" to="/rosmip_balance_controller/cmd_vel"/>
+   -->
   </node>
 
-
+  <!--
   <node pkg="tf" type="static_transform_publisher" name="world_to_map_tf" args="0 0 0 0 0 0 /world /map 100"/>
-  
+  -->
 </launch>

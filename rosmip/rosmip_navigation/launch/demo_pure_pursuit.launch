@@ -2,7 +2,6 @@
 <launch>
 
   <arg name="map" default="$(find rosmip_worlds)/maps/track_ethz_dual.yaml" />
-
   <arg name="path_filename" default="$(find two_d_guidance)/paths/test/track_ethz_dual_01.npz" />
   <arg name="vel_setpoint" default="0.5" />
   
@@ -19,8 +18,8 @@
   <rosparam command="load" file="$(find rosmip_navigation)/config/pure_pursuit_gazebo.yaml" />
   <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
     <param name="~path_filename" value="$(arg path_filename)" />
-    <!--<param name="~truth_topic" value="/rosmip/base_link_truth" />-->
-    <param name="~truth_topic" value="/rosmip/ekf/pose" />
+    <!--<param name="~truth_topic" value="/rosmip/ekf/pose" />-->
+    <param name="~robot_pose_topic" value="/rosmip/base_link_truth" />
     <param name="~vel_setpoint" value="$(arg vel_setpoint)" />
   </node>
 

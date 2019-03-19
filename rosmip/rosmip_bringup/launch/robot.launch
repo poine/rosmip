@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="config" default="rosmip_1"/>
-
+  <arg name="enable_odom_tf" default="true" />
+  
   <param name="enc_mult" value="2"/>
   <node name="robot_hardware" pkg="rosmip_control" type="rosmip_hardware_interface_node">
   </node>
@@ -14,6 +15,7 @@
   <!--<include file="$(find rosmip_control)/launch/control_balance.launch" /> -->
   <include file="$(find rosmip_control)/launch/control_legacy.launch">
     <arg name="config" value="$(arg config)" />	
+    <arg name="enable_odom_tf" default="$(arg enable_odom_tf)" />
   </include>
   
 

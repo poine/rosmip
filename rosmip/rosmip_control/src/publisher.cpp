@@ -124,21 +124,24 @@ namespace rosmip_controller {
   {}
   
 
-    void OdomPublisher::init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh) {
+  void OdomPublisher::init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh) {
+    controller_nh.getParam("enable_odom_tf", enable_odom_tf_);
+    ROS_INFO_STREAM("enable odom tf " << enable_odom_tf_);
+ 
     // Get and check params for covariances
     XmlRpc::XmlRpcValue pose_cov_list;
     controller_nh.getParam("pose_covariance_diagonal", pose_cov_list);
     ROS_ASSERT(pose_cov_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
     ROS_ASSERT(pose_cov_list.size() == 6);
     for (int i = 0; i < pose_cov_list.size(); ++i)
-        ROS_ASSERT(pose_cov_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+      ROS_ASSERT(pose_cov_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 
     XmlRpc::XmlRpcValue twist_cov_list;
     controller_nh.getParam("twist_covariance_diagonal", twist_cov_list);
     ROS_ASSERT(twist_cov_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
     ROS_ASSERT(twist_cov_list.size() == 6);
     for (int i = 0; i < twist_cov_list.size(); ++i)
-        ROS_ASSERT(twist_cov_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+      ROS_ASSERT(twist_cov_list[i].getType() == XmlRpc::XmlRpcValue::TypeDouble);
 
     // Setup odometry realtime publisher + odom message constant fields
     odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(controller_nh, "odom", 100));

@@ -17,9 +17,11 @@
 
   <xacro:property name="high_definition_wheel_visual" value="true" />
   <xacro:property name="high_definition_body_visual"  value="true" />
-
+  <xacro:property name="high_definition_camera_visual"  value="true" />
+  
   <!-- sensors -->
   <xacro:property name="use_infrared_marker" value="false" />
   <xacro:property name="use_aruco_marker"    value="false" />
-
+  <xacro:property name="use_eachine_camera" value="true" />
+  
 </robot>

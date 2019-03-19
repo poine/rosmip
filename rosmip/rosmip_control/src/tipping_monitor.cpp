@@ -20,10 +20,9 @@ namespace rosmip_controller {
 
   void TippingMonitor::update(tf::Vector3 vert_body) {
     
-    //std::cerr << vert_body.getX() << " " << vert_body.getY() << " " << vert_body.getZ() << " " << std::endl;
-    ROS_INFO_STREAM_THROTTLE(0.1, "vert_body " << vert_body.getX() << " " << vert_body.getY() << " " << vert_body.getZ());
+    //ROS_INFO_STREAM_THROTTLE(0.1, "vert_body " << vert_body.getX() << " " << vert_body.getY() << " " << vert_body.getZ());
     prev_status_ = status_;
-    ROS_INFO_STREAM_THROTTLE(0.1, "status:" << prev_status_ << "" <<  status_); // every 0.1 s
+    //ROS_INFO_STREAM_THROTTLE(0.1, "status:" << prev_status_ << "" <<  status_); // every 0.1 s
     switch (status_) {
     case TIPPED:
       if (vert_body.getZ() >= max_bank_) {

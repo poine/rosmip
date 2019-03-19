@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import time, math, numpy as np, sys
-import rospy, rospkg, sensor_msgs.msg, nav_msgs.msg
+import rospy, rospkg, sensor_msgs.msg, nav_msgs.msg, geometry_msgs.msg
 import matplotlib.pyplot as plt
 
 '''
@@ -16,16 +16,21 @@ Records raw odometry and simulator truth to npz file
 '''
 
 class Node:
-    def __init__(self):
+    def __init__(self, rec_smocap=True):
         rospy.init_node('record_odometry')
         # Robot sensors: encoders, IMU
-        rospy.Subscriber('/rosmip_balance_controller/debug_io', rosmip_control.msg.msg_debug_io, self.raw_odom_callback)
+        rospy.Subscriber('/rosmip_balance_controller/debug_io', rosmip_control.msg.msg_debug_io, self.debug_io_callback)
         self.lw_angle, self.rw_angle = [], []
         self.lw_pwm, self.rw_pwm = [], []
         self.imu_pitch, self.imu_pitch_dot = [], []
         self.odom_stamp = []
 
-        # truth
+        if rec_smocap:  # smocap
+            rospy.Subscriber('/smocap/est_marker', geometry_msgs.msg.PoseWithCovarianceStamped, self.smocap_cbk)
+        self.mocap_pos = []
+        self.mocap_ori = []
+        self.mocap_stamp = []
+        # gazebo
         rospy.Subscriber('/rosmip/base_link_truth', nav_msgs.msg.Odometry, self.gazebo_truth_callback)
         self.truth_pos = []
         self.truth_ori = []
@@ -34,7 +39,7 @@ class Node:
         self.truth_stamp = []
 
 
-    def raw_odom_callback(self, msg):
+    def debug_io_callback(self, msg):
         self.lw_angle += msg.lw_angle[:msg.nb_data]
         self.rw_angle += msg.rw_angle[:msg.nb_data]
         self.lw_pwm += msg.lw_pwm[:msg.nb_data]
@@ -42,6 +47,11 @@ class Node:
         self.imu_pitch += msg.pitch[:msg.nb_data]
         self.imu_pitch_dot += msg.pitch_dot[:msg.nb_data]
         self.odom_stamp += [_s.to_sec() for _s in msg.stamp[:msg.nb_data]]
+
+    def smocap_cbk(self, msg):
+        self.mocap_pos.append(jmu.list_of_xyz(msg.pose.pose.position))
+        self.mocap_ori.append(jmu.list_of_xyzw(msg.pose.pose.orientation))
+        self.mocap_stamp.append(msg.header.stamp)
 
     def gazebo_truth_callback(self, msg):
         self.truth_pos.append( jmu.list_of_xyz(msg.pose.pose.position))
@@ -53,7 +63,8 @@ class Node:
     def run(self):
         rate = rospy.Rate(1)
         while not rospy.is_shutdown():
-            print('recorded {} odometry and {} thruth'.format( len(self.odom_stamp), len(self.truth_stamp)))
+            print('recorded {} odometry, {} thruth and {} mocap'.format( len(self.odom_stamp), len(self.truth_stamp),
+                                                                         len(self.mocap_stamp)))
             rate.sleep()
 
 
@@ -71,12 +82,15 @@ class Node:
                  truth_ori   = np.array(node.truth_ori),
                  truth_lvel  = np.array(node.truth_lvel),
                  truth_rvel  = np.array(node.truth_rvel),
-                 truth_stamp = np.array(node.truth_stamp))
+                 truth_stamp = np.array(node.truth_stamp),
+                 mocap_pos   = np.array(self.mocap_pos),
+                 mocap_ori   = np.array(self.mocap_ori),
+                 mocap_stamp = np.array(self.mocap_stamp))
 
 
             
 if __name__ == '__main__':
-    node = Node()
+    node = Node(rec_smocap=True)
     try:
         node.run()
     except rospy.ROSInterruptException:
