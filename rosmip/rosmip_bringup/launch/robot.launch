@@ -1,22 +1,20 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="config" default="rosmip_1"/>
+  <arg name="robot_name" default="rosmip_1"/>
   <arg name="enable_odom_tf" default="true" />
   
   <param name="enc_mult" value="2"/>
-  <node name="robot_hardware" pkg="rosmip_control" type="rosmip_hardware_interface_node">
+  <node name="robot_hardware" pkg="rosmip_control" type="rosmip_hardware_interface_node" output="screen" ns="$(arg robot_name)">
   </node>
 
-  <!-- Load ROSMip's description, controllers, and teleop nodes. -->
+  <!-- Load ROSMip's description. -->
   <include file="$(find rosmip_description)/launch/description.launch">
-    <arg name="robot_name" value="$(arg config)" />	
+    <arg name="robot_name" value="$(arg robot_name)" />	
   </include>	       
 
-  <!--<include file="$(find rosmip_control)/launch/control_balance.launch" /> -->
   <include file="$(find rosmip_control)/launch/control_legacy.launch">
-    <arg name="config" value="$(arg config)" />	
+    <arg name="robot_name" value="$(arg robot_name)" />	
     <arg name="enable_odom_tf" default="$(arg enable_odom_tf)" />
   </include>
   
-
 </launch>

@@ -10,16 +10,16 @@ rosmip_balance_controller:
     type: rosmip_control/RosMipControllerLegacy
 
     odom_ws: 0.0816
-    odom_lr: 0.0396
-    odom_rr: 0.0396
+    odom_lr: 0.03
+    odom_rr: 0.03
 
     d1_num: [-4.945, 8.862, -3.967]
     d1_den: [1.000, -1.481, 0.4812]
-    d1_gain: 0.75
+    d1_gain: 1.4
 
     d2_num: [0.18856, -0.37209, 0.18354]
     d2_den: [1.00000, -1.86046, 0.86046]
-    d2_gain: 0.9
+    d2_gain: 0.8
 
     d3_kp: 0.7
     d3_kd: 0.05
@@ -29,5 +29,5 @@ rosmip_balance_controller:
     pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
     twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
     base_frame_id: rosmip_2/base_link
-    odom_frame_id: rosmip_2/odom
-    #    enable_odom_tf: false
+    odom_frame_id: rosmip_2/odom    
+    enable_odom_tf: true

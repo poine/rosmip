@@ -5,7 +5,9 @@
 #define __NAME "rosmip_hardware_interface"
 const std::string joint_name_[NB_JOINTS] = {"left_wheel_joint","right_wheel_joint"};
 
-#define ROSMIP1
+#define ROSMIP2
+// TODO fix that!!!
+//#pragma message "Compiling " __FILE__ "..."
 
 #ifdef ROSMIP1
 // mechanics
@@ -102,6 +104,7 @@ RosMipHardwareInterface::RosMipHardwareInterface():
   imu_sensor_interface_.registerHandle(imu_sensor_handle);
   registerInterface(&imu_sensor_interface_);
 
+#if 1
   // register DSM
   dsm_data_.name = "dsm";
   dsm_data_.ok = &dsm_ok_;
@@ -111,7 +114,7 @@ RosMipHardwareInterface::RosMipHardwareInterface():
   hardware_interface::DsmHandle dsm_handle(dsm_data_);
   dsm_interface_.registerHandle(dsm_handle);
   registerInterface(&dsm_interface_);
-
+#endif
   
 }
 
@@ -143,17 +146,19 @@ static void __mpu_cbk(void)
  *
  *******************************************************************************/
 bool RosMipHardwareInterface::start() {
-
+  ROS_INFO_STREAM_NAMED(__NAME, "RosMipHardwareInterface::start");
   // encoders
   if(rc_encoder_eqep_init()){
     ROS_ERROR("in RosMipHardwareInterface::start: failed to initialize eqep");
     return -1;
   }
+  ROS_INFO_STREAM_NAMED(__NAME, "RosMipHardwareInterface::start: started encoders");
   // motors
   if (rc_motor_init_freq(RC_MOTOR_DEFAULT_PWM_FREQ)) {
     ROS_ERROR("in RosMipHardwareInterface::start: failed to initialize motors");
     return -1;
   }
+  ROS_INFO_STREAM_NAMED(__NAME, "RosMipHardwareInterface::start: started motors");
   // IMU
   rc_mpu_config_t conf = rc_mpu_default_config();
   conf.i2c_bus = I2C_BUS;
@@ -168,6 +173,7 @@ bool RosMipHardwareInterface::start() {
   }
   _foo_hw_interf = this;
   rc_mpu_set_dmp_callback(&__mpu_cbk);
+  ROS_INFO_STREAM_NAMED(__NAME, "RosMipHardwareInterface::start: started imu");
 
   // start dsm listener
   // rc_initialize_dsm();
