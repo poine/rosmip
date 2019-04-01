@@ -1,21 +1,16 @@
 <?xml version="1.0"?>
-<robot>
+<robot name="$(arg robot_name)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
   <gazebo>
 
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <robotNamespace>/</robotNamespace>
+      <robotNamespace>$(arg robot_name)</robotNamespace>
+      <robotParam>robot_description</robotParam>
       <robotSimType>rosmip_hardware_gazebo/RosMipHardwareInterface</robotSimType>
       <controlPeriod>0.01</controlPeriod>
     </plugin>
     
-    <!--  
-      
-    <plugin name="rosmip_controller" filename="libgazebo_ros_control.so">
-      <robotSimType>rosmip_hardware_gazebo/RosMipHardwareInterface</robotSimType>
-    </plugin>
-    
-    -->
-    
+   
     <!--    -->
     <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
       <alwaysOn>true</alwaysOn>
@@ -31,10 +26,19 @@
     <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
       <frameName>world</frameName>
       <bodyName>base_link</bodyName>
-      <topicName>rosmip/base_link_truth</topicName>
+      <topicName>base_link_truth</topicName>
       <updateRate>100.0</updateRate>
     </plugin>
-
+    
+    <!--
+    <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+      <frameName>world</frameName>
+      <bodyName>irm_link</bodyName>
+      <topicName>rosmip/irm_link_truth</topicName>
+      <updateRate>30.0</updateRate>
+    </plugin>
+    -->
+    
     <!--
     <plugin name="imu_pluggin" filename="libhector_gazebo_ros_imu.so">
       <updateRate>100.0</updateRate>

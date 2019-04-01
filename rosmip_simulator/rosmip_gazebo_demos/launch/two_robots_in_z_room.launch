@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="start_gazebo" default="true"/>
+  <arg name="world_name" default="$(find common_simulations)/worlds/ethz_cam1.world" />
+  
+  <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch">	
+    <arg name="start_gazebo" value="$(arg start_gazebo)" />
+    <arg name="world_path" value="$(arg world_name)" />
+    <arg name="robot_name" value="rosmip_1" />
+    <arg name="robot_initial_loc" default="-x 1.5 -y 3.4 -z 0.02"/>
+  </include>
+
+  <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch">	
+      <arg name="start_gazebo" value="false" />
+      <arg name="robot_name" value="rosmip_2" />
+      <arg name="robot_initial_loc" default="-x 1.2 -y 3.15 -z 0.02"/>
+  </include>
+    
+</launch>

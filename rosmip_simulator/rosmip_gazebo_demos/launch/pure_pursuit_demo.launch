@@ -2,29 +2,32 @@
 
 <!--
 
-Static map rosmip pure pursuit demonstration.
+Rosmip pure pursuit demonstration.
 - rosmip in gazebo
-- map server
-- controllers
-- rviz
+- call the pure pursuit demonstration launcher
 
 -->
 
 <launch>
 
-  <arg name="world" default="empty"/>
+  <arg name="robot_name" default="rosmip_1" />
+  <arg name="start_gazebo" default="true" />
   
-  <arg name="world_path" value="$(find rosmip_worlds)/worlds/$(arg world).world" />
-  <arg name="map_path"   default="$(find rosmip_worlds)/maps/track_ethz_dual.yaml" />
-
-  <arg name="path_filename" default="$(find two_d_guidance)/paths/test/track_ethz_dual_01.npz" />
+  <arg name="world_path" default="$(find common_simulations)/worlds/ethz_cam1.world" />
+  
+  <arg name="map_path" default="$(find rosmip_worlds)/maps/expe_z/track_ethz_cam1_new.yaml" />
+  <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_cw.npz" />
   <arg name="vel_setpoint" default="0.25" />
 
-  <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch" >
-    <arg name="controller_enable_odom_tf" value="true" />
-    <arg name="world_path" value="$(arg world_path)" />
-  </include>
-
+  <!--  ****** Gazebo and robot therein *****  -->
+  <group if="$(arg start_gazebo)">
+    <include file="$(find rosmip_gazebo)/launch/rosmip_world.launch" >
+      <arg name="controller_enable_odom_tf" value="true" />
+      <arg name="world_path" value="$(arg world_path)" />
+      <arg name="robot_name" default="$(arg robot_name)"/>
+      <arg name="robot_initial_loc" default="-x 1.5 -y 3.3 -z 0.02"/>
+    </include>
+  </group>
 
   <include file="$(find rosmip_navigation)/launch/demo_pure_pursuit.launch" >
     <arg name="map" value="$(arg map_path)" />
@@ -32,8 +35,5 @@ Static map rosmip pure pursuit demonstration.
     <arg name="vel_setpoint" value="$(arg vel_setpoint)" />
   </include> 
   
-
-
-  <!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/smocap.rviz" />-->
 
 </launch>

@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <launch>
 
+  <arg name="robot_name" default="rosmip_1"/>
   <rosparam command="load" file="$(find rosmip_control)/config/teleop.yaml" />
   
   <node pkg="joy" type="joy_node" name="joy_node" />
 
   <node pkg="teleop_twist_joy" type="teleop_node" name="teleop_twist_joy">
-    <remap from="cmd_vel" to="/rosmip_balance_controller/cmd_vel" />
+    <remap from="cmd_vel" to="$(arg robot_name)/rosmip_balance_controller/cmd_vel" />
   </node>
 
 </launch>

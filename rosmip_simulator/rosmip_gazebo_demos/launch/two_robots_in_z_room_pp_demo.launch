@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="start_gazebo" default="true"/>
+  <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_cw.npz"/>
+
+  <!-- Gazebo -->
+  <group if="$(arg start_gazebo)">
+    <include file="$(find rosmip_gazebo_demos)/launch/two_robots_in_z_room.launch" />
+  </group>
+
+  <!-- Smocap -->
+  <include file="$(find smocap_gazebo)/launch/demo_gazebo_cfg_z1.launch">	
+    <arg name="start_gazebo" value="false" />
+    <arg name="start_hog_marker" value="false" />
+    <arg name="height_above_floor" value="0.09" />
+  </include>
+
+  <include file="$(find rosmip_navigation)/launch/demo_pure_pursuit_z.launch">
+    <arg name="robot_name" value="rosmip_1" />
+    <arg name="robot_marker" value="0" />
+    <arg name="start_map" value="true" />
+    <arg name="run_pp" value="true" />
+    <!-- <arg name="robot_pose_topic" value="/rosmip_1/base_link_truth" /> -->
+    <arg name="robot_pose_topic" value="/rosmip_1/ekf/pose" />
+    <arg name="vel_setpoint" value="0.20" />
+    <arg name="start_smocap" value="false" />
+    <arg name="start_rviz" value="false" />
+  </include>
+
+  <include file="$(find rosmip_navigation)/launch/demo_pure_pursuit_z.launch">
+    <arg name="robot_name" value="rosmip_2" />
+    <arg name="robot_marker" value="1" />
+    <arg name="start_map" value="false" />
+    <arg name="run_pp" value="true" />
+    <arg name="robot_pose_topic" value="/rosmip_2/ekf/pose" />
+    <arg name="vel_setpoint" value="0.20" />
+    <arg name="start_smocap" value="false" />
+    <arg name="start_rviz" value="false" />
+  </include>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/two_robots_pure_pursuit.rviz" />
+  
+</launch>

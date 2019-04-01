@@ -1,8 +1,14 @@
 <?xml version="1.0"?>
 <robot name="rosmip_1" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <xacro:arg name="robot_name" default="rosmip_1" />
+  
   <xacro:include filename="$(find rosmip_description)/urdf/rosmip_defaults.urdf.xacro" />
-  <xacro:property name="use_eachine_camera" value="true" />
+
+  <xacro:property name="use_infrared_marker" value="true" />
+  <xacro:property name="smocap_ir_marker_mesh" value="ir_marker.dae" />
+  
+  <xacro:property name="use_eachine_camera" value="false" />
   
   <xacro:include filename="$(find rosmip_description)/urdf/rosmip.urdf.xacro" />
   

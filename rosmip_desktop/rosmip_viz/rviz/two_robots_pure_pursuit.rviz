@@ -3,7 +3,8 @@ Panels:
     Help Height: 111
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /rosmip_1_PurePursuit1/fullPath1/Status1
       Splitter Ratio: 0.5
     Tree Height: 246
   - Class: rviz/Selection
@@ -81,63 +82,70 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Name: RobotModel
+      Name: rosmip_1
+      Robot Description: rosmip_1/robot_description
+      TF Prefix: rosmip_1
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        chassis_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        irm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: rosmip_2
       Robot Description: rosmip_2/robot_description
       TF Prefix: rosmip_2
       Update Interval: 0
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        camera_1_link:
-          Value: true
-        camera_1_optical_frame:
-          Value: true
-        map:
-          Value: true
-        rosmip_2/base_link:
-          Value: true
-        rosmip_2/chassis_link:
-          Value: true
-        rosmip_2/imu_link:
-          Value: true
-        rosmip_2/irm_link:
-          Value: true
-        rosmip_2/left_wheel_link:
-          Value: true
-        rosmip_2/odom:
-          Value: true
-        rosmip_2/right_wheel_link:
-          Value: true
-        world:
-          Value: true
       Marker Scale: 0.25
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        world:
-          camera_1_link:
-            camera_1_optical_frame:
-              {}
-          map:
-            rosmip_2/odom:
-              rosmip_2/base_link:
-                rosmip_2/chassis_link:
-                  rosmip_2/irm_link:
-                    {}
-                  rosmip_2/left_wheel_link:
-                    {}
-                  rosmip_2/right_wheel_link:
-                    {}
-                rosmip_2/imu_link:
-                  {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Class: rviz/Group
       Displays:
         - Alpha: 0.699999988079071
@@ -150,7 +158,7 @@ Visualization Manager:
           Unreliable: false
           Use Timestamp: false
           Value: true
-      Enabled: false
+      Enabled: true
       Name: map
     - Class: rviz/Group
       Displays:
@@ -190,6 +198,36 @@ Visualization Manager:
           Head Length: 0.30000001192092896
           Head Radius: 0.10000000149011612
           Name: marker_0
+          Shaft Length: 1
+          Shaft Radius: 0.05000000074505806
+          Shape: Axes
+          Topic: /smocap/marker_0
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Axes Length: 0.10000000149011612
+          Axes Radius: 0.009999999776482582
+          Class: rviz/PoseWithCovariance
+          Color: 255; 25; 0
+          Covariance:
+            Orientation:
+              Alpha: 0.5
+              Color: 255; 255; 127
+              Color Style: Unique
+              Frame: Local
+              Offset: 1
+              Scale: 1
+              Value: true
+            Position:
+              Alpha: 0.30000001192092896
+              Color: 204; 51; 204
+              Scale: 1
+              Value: true
+            Value: false
+          Enabled: true
+          Head Length: 0.30000001192092896
+          Head Radius: 0.10000000149011612
+          Name: marker_1
           Shaft Length: 1
           Shaft Radius: 0.05000000074505806
           Shape: Axes
@@ -244,32 +282,9 @@ Visualization Manager:
           Radius: 0.029999999329447746
           Shaft Diameter: 0.10000000149011612
           Shaft Length: 0.10000000149011612
-          Topic: /pure_pursuit/path
+          Topic: /rosmip_1/pure_pursuit/path
           Unreliable: false
           Value: true
-        - Alpha: 1
-          Buffer Length: 1
-          Class: rviz/Path
-          Color: 0; 170; 255
-          Enabled: false
-          Head Diameter: 0.30000001192092896
-          Head Length: 0.20000000298023224
-          Length: 0.30000001192092896
-          Line Style: Lines
-          Line Width: 0.029999999329447746
-          Name: curPath
-          Offset:
-            X: 0
-            Y: 0
-            Z: 0
-          Pose Color: 255; 85; 255
-          Pose Style: None
-          Radius: 0.029999999329447746
-          Shaft Diameter: 0.10000000149011612
-          Shaft Length: 0.10000000149011612
-          Topic: /pure_pursuit/curpath
-          Unreliable: false
-          Value: false
         - Alpha: 1
           Buffer Length: 1
           Class: rviz/Path
@@ -290,19 +305,77 @@ Visualization Manager:
           Radius: 0.029999999329447746
           Shaft Diameter: 0.10000000149011612
           Shaft Length: 0.10000000149011612
-          Topic: /pure_pursuit/arc
+          Topic: /rosmip_1/pure_pursuit/arc
           Unreliable: false
           Value: true
         - Class: rviz/Marker
           Enabled: true
-          Marker Topic: /pure_pursuit/goal
+          Marker Topic: /rosmip_1/pure_pursuit/goal
           Name: Goal
           Namespaces:
             "": true
           Queue Size: 100
           Value: true
       Enabled: true
-      Name: PurePursuit
+      Name: rosmip_1_PurePursuit
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 255; 255; 0
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Lines
+          Line Width: 0.029999999329447746
+          Name: fullPath
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /rosmip_2/pure_pursuit/path
+          Unreliable: false
+          Value: true
+        - Alpha: 1
+          Buffer Length: 1
+          Class: rviz/Path
+          Color: 125; 125; 125
+          Enabled: true
+          Head Diameter: 0.30000001192092896
+          Head Length: 0.20000000298023224
+          Length: 0.30000001192092896
+          Line Style: Lines
+          Line Width: 0.029999999329447746
+          Name: arc
+          Offset:
+            X: 0
+            Y: 0
+            Z: 0
+          Pose Color: 255; 85; 255
+          Pose Style: None
+          Radius: 0.029999999329447746
+          Shaft Diameter: 0.10000000149011612
+          Shaft Length: 0.10000000149011612
+          Topic: /rosmip_2/pure_pursuit/arc
+          Unreliable: false
+          Value: true
+        - Class: rviz/Marker
+          Enabled: true
+          Marker Topic: /rosmip_2/pure_pursuit/goal
+          Name: Goal
+          Namespaces:
+            "": true
+          Queue Size: 100
+          Value: true
+      Enabled: true
+      Name: rosmip_2_PurePursuit
     - Class: rviz/Group
       Displays:
         - Angle Tolerance: 0.10000000149011612
@@ -393,8 +466,42 @@ Visualization Manager:
           Value: true
         Value: true
       Enabled: true
-      Keep: 100
-      Name: ekf
+      Keep: 10
+      Name: ekf_rosmip_1
+      Position Tolerance: 0.009999999776482582
+      Shape:
+        Alpha: 1
+        Axes Length: 1
+        Axes Radius: 0.10000000149011612
+        Color: 255; 25; 0
+        Head Length: 0.029999999329447746
+        Head Radius: 0.009999999776482582
+        Shaft Length: 0.10000000149011612
+        Shaft Radius: 0.004999999888241291
+        Value: Arrow
+      Topic: /rosmip_1/ekf/pose
+      Unreliable: false
+      Value: true
+    - Angle Tolerance: 0.009999999776482582
+      Class: rviz/Odometry
+      Covariance:
+        Orientation:
+          Alpha: 0.5
+          Color: 255; 255; 127
+          Color Style: Unique
+          Frame: Local
+          Offset: 1
+          Scale: 1
+          Value: false
+        Position:
+          Alpha: 0.30000001192092896
+          Color: 204; 51; 204
+          Scale: 1
+          Value: true
+        Value: true
+      Enabled: true
+      Keep: 10
+      Name: ekf_rosmip_2
       Position Tolerance: 0.009999999776482582
       Shape:
         Alpha: 1
@@ -423,23 +530,26 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/FPS
+      Class: rviz/Orbit
+      Distance: 4.694455623626709
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
+      Focal Point:
+        X: 1.8528965711593628
+        Y: 1.735123872756958
+        Z: 0.6512184143066406
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8097965717315674
-      Position:
-        X: 5.599086284637451
-        Y: -0.46847593784332275
-        Z: 3.2100822925567627
-      Target Frame: base_link
-      Value: FPS (rviz)
-      Yaw: 2.5964457988739014
+      Pitch: 1.5697963237762451
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 4.718039512634277
     Saved: ~
 Window Geometry:
   Displays:

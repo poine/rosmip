@@ -1,9 +1,13 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="config" default="rosmip" />
+  <arg name="robot_name" default="rosmip_1" />
 
-  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find rosmip_description)/urdf/$(arg config).urdf.xacro" />
+  <param name="$(arg robot_name)/robot_description" command="$(find xacro)/xacro --inorder $(find rosmip_description)/urdf/$(arg robot_name).urdf.xacro" />
 
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <node name="$(arg robot_name)_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+    <remap from="/joint_states" to="/$(arg robot_name)/joint_states" />
+    <remap from="robot_description" to="$(arg robot_name)/robot_description" />
+    <param name="tf_prefix" value="$(arg robot_name)"/>
+  </node>
 
 </launch>

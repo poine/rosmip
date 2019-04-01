@@ -1,8 +1,18 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!--  ****** Master sync for ray *****  -->
+  <arg name="robot_name"      default="rosmip_2"/>
+  <arg name="robot_marker"    default="1"/>
   <arg name="run_multimaster" default="false"/>
+  <arg name="run_pp"          default="true"/>
+  <arg name="start_smocap"    default="true"/>
+  <arg name="start_map"       default="true"/>
+  <arg name="start_rviz"      default="true"/>
+
+  <arg name="robot_ref_link" default="$(arg robot_name)/base_link" />
+  <arg name="robot_pose_topic" default="/$(arg robot_name)/base_link_truth" />
+  
+  <!--  ****** Master sync for ray *****  -->
   <group if="$(arg run_multimaster)">
     <node name="master_sync_ray" pkg="master_sync_fkie" type="master_sync" output="screen">
       <param name="sync_hosts" value="ray"/>
@@ -10,38 +20,57 @@
     </node>
   </group>
 
-
+  <group if="$(arg start_smocap)" >
+    <include file="$(find smocap_gazebo)/launch/demo_gazebo_cfg_z1.launch">	
+      <arg name="start_gazebo" value="false" />
+      <arg name="start_hog_marker" value="false" />
+      <arg name="height_above_floor" value="0.09" />
+    </include>
+  </group>
+  
   <arg name="map" default="$(find rosmip_worlds)/maps/expe_z/track_ethz_cam1_new.yaml" />
   <arg name="path_filename" default="$(find two_d_guidance)/paths/demo_z/track_ethz_cam1_cw.npz" />
   <arg name="vel_setpoint" default="0.2"/>
   <arg name="look_ahead" default="0.4"/>
   
   <!--  ****** Maps *****  -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
-    <param name="frame_id" value="/map"/>
-  </node>
-
-  <!--  ****** World to map transform publisher *****  -->
-  <!-- -->
-  <node name="world_to_map_publisher" pkg="tf" type="static_transform_publisher"
-        args="0 0 0  0 0 0 world map 100"/>
-  <!-- -->
-
+  <group if="$(arg start_map)" >
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map)" output="screen">
+      <param name="frame_id" value="/map"/>
+    </node>
+    <!--  ****** World to map transform publisher *****  -->
+    <node name="world_to_map_publisher" pkg="tf" type="static_transform_publisher"
+          args="0 0 0  0 0 0 world map 100"/>
+  </group>
+  
   <!--  ****** Navigation Filter *****  -->
   <include file="$(find rosmip_navigation)/launch/robot_localization_ekf.launch">
-    <param name="config" value="ekf_smocap"/>
+    <arg name="config" value="ekf_smocap"/>
+    <arg name="robot_name" value="$(arg robot_name)"/>
+    <arg name="robot_marker" default="$(arg robot_marker)"/>
   </include>
 
   <!--  ****** Pure pursuit controller *****  -->
-  <node name="pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
-    <param name="twist_cmd_topic" value="rosmip_balance_controller/cmd_vel"/>
-    <param name="robot_pose_topic" value="/smocap/est_marker" />
-    <param name="path_filename" value="$(arg path_filename)"/>
-    <param name="vel_setpoint" value="$(arg vel_setpoint)"/>
-    <param name="look_ahead" value="$(arg look_ahead)"/>
-  </node>
-  
+  <group if="$(arg run_pp)">
+    <node name="$(arg robot_name)_pure_pursuit" pkg="two_d_guidance" type="pp_guidance_node.py" output="screen">
+      <param name="twist_cmd_topic" value="/$(arg robot_name)/rosmip_balance_controller/cmd_vel"/>
+      <!--<param name="robot_pose_topic" value="/smocap/est_marker" />-->
+      <!-- <param name="robot_pose_topic" value="/$(arg robot_name)/ekf/pose" /> -->
+      <param name="robot_pose_topic" value="$(arg robot_pose_topic)" />
+      <param name="path_filename" value="$(arg path_filename)"/>
+      <param name="vel_setpoint" value="$(arg vel_setpoint)"/>
+      <param name="look_ahead" value="$(arg look_ahead)"/>
+      <param name="robot_ref_link" value="$(arg robot_ref_link)"/>
+      
+      <remap from="/pure_pursuit/path" to="$(arg robot_name)/pure_pursuit/path" />
+      <remap from="/pure_pursuit/goal" to="$(arg robot_name)/pure_pursuit/goal" />
+      <remap from="/pure_pursuit/arc"  to="$(arg robot_name)/pure_pursuit/arc" />
+    </node>
+  </group>
+
   <!--  ****** Rviz *****  -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/pure_pursuit.rviz" />
+  <group if="$(arg start_rviz)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rosmip_viz)/rviz/pure_pursuit.rviz" />
+  </group>
 
 </launch>

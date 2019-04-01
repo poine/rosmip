@@ -2,17 +2,16 @@
 <launch>
 
   <arg name="config" default="ekf"/>
+  <arg name="robot_name" default="rosmip_1"/>
+  <arg name="robot_marker" default="0"/>
   
-  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true" output="screen">
+  <node pkg="robot_localization" type="ekf_localization_node" name="$(arg robot_name)_ekf_localization" clear_params="true" output="screen">
     <rosparam command="load" file="$(find rosmip_navigation)/params/$(arg config).yaml" />
-
-   <!--  Placeholder for output topic remapping
-    <remap from="accel/filtered" to=""/>
-    -->
-   <!--
-       <remap from="odometry/filtered" to="rosmip/ekf/pose"/>
-       <remap from="/cmd_vel" to="/rosmip_balance_controller/cmd_vel"/>
-   -->
+    <rosparam param="base_link_frame" subst_value="True">$(arg robot_name)/base_link</rosparam>
+    <rosparam param="odom_frame" subst_value="True">$(arg robot_name)/odom</rosparam>
+    <rosparam param="odom0" subst_value="True">$(arg robot_name)/rosmip_balance_controller/odom</rosparam>
+    <rosparam param="pose0" subst_value="True">/smocap/marker_$(arg robot_marker)</rosparam>
+    <remap from="odometry/filtered" to="$(arg robot_name)/ekf/pose"/>
   </node>
 
   <!--

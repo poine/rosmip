@@ -127,7 +127,12 @@ namespace rosmip_controller {
   void OdomPublisher::init(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh) {
     controller_nh.getParam("enable_odom_tf", enable_odom_tf_);
     ROS_INFO_STREAM("enable odom tf " << enable_odom_tf_);
- 
+    controller_nh.getParam("base_frame_id",  base_frame_id_);
+    controller_nh.getParam("odom_frame_id",  odom_frame_id_);
+    ROS_INFO_STREAM("base_frame_id " << base_frame_id_);
+    ROS_INFO_STREAM("odom_frame_id " << odom_frame_id_);
+
+    
     // Get and check params for covariances
     XmlRpc::XmlRpcValue pose_cov_list;
     controller_nh.getParam("pose_covariance_diagonal", pose_cov_list);

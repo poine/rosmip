@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="config" default="rosmip_1" />
+  <arg name="robot_name" default="rosmip_1" />
   <arg name="enable_odom_tf" default="true" />
 
-  <rosparam command="load" file="$(find rosmip_control)/config/control_legacy_$(arg config).yaml" />
+  <rosparam command="load" file="$(find rosmip_control)/config/control_legacy_$(arg robot_name).yaml" ns="$(arg robot_name)"/>
 
-  <node name="base_controller_spawner" pkg="controller_manager" type="spawner" args="rosmip_balance_controller rosmip_imu_controller rosmip_joint_publisher"/>
+  <node name="base_controller_spawner" pkg="controller_manager" type="spawner" ns="$(arg robot_name)" output="screen"
+	args="rosmip_balance_controller rosmip_imu_controller rosmip_joint_publisher"/>
 
 </launch>

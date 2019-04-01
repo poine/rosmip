@@ -22,6 +22,6 @@
   <!-- sensors -->
   <xacro:property name="use_infrared_marker" value="false" />
   <xacro:property name="use_aruco_marker"    value="false" />
-  <xacro:property name="use_eachine_camera" value="true" />
+  <xacro:property name="use_eachine_camera" value="false" />
   
 </robot>

@@ -110,7 +110,7 @@ bool RosMipLegacyController::init(hardware_interface::RobotHW* hw,
     sfb_ctl_law_.init();
     
     inp_mng_.init(hw, controller_nh);
-    
+
     odom_publisher_.init(root_nh, controller_nh);
     debug_io_publisher_.init(root_nh, controller_nh);
     debug_ctl_publisher_.init(root_nh, controller_nh);

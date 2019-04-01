@@ -1,3 +1,13 @@
+#tiny mocute
+# teleop_twist_joy:
+#   axis_linear:  0
+#   scale_linear: 0.5
+#   scale_linear_turbo: 1.0
+#   axis_angular: 1
+#   scale_angular: 1.5
+#   enable_button: 1
+#   enable_turbo_button: -1
+# regular joystick
 teleop_twist_joy:
   axis_linear:  1
   scale_linear: 0.5
